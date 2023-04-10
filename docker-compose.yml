@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  miageland-db:
+    image: mysql:8
+    container_name: miageland-db
+    environment:
+      - MYSQL_USER=dev
+      - MYSQL_DATABASE=miageland
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "6605:3306"
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
