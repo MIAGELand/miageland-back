@@ -11,7 +11,6 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
-@NoArgsConstructor
 public class Visitor {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,4 +18,9 @@ public class Visitor {
     private String name;
     private String surname;
     private String email;
+
+    public Visitor(String name, String surname) {
+        this.name = name;
+        this.surname = surname;
+    }
 }
