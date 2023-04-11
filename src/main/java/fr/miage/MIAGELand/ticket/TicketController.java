@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -28,7 +30,7 @@ public class TicketController {
      * @param nbTicket
      * @return Ticket
      */
-    @PutMapping("/{nbTicket}")
+    @PatchMapping("/{nbTicket}")
     public Ticket updateTicket(@PathVariable Long nbTicket) {
         Ticket ticket = ticketRepository.findByNbTicket(nbTicket);
         ticketService.validateTicket(ticket);
@@ -37,18 +39,11 @@ public class TicketController {
 
     /**
      * Create a ticket
-     * @param name
-     * @param surname
-     * @param date
-     * @param price
+     * @param body
      * @return Ticket
      */
-    @PostMapping()
-    public Ticket createTicket(@RequestBody String name,
-                               @RequestBody String surname,
-                               @RequestBody LocalDateTime date,
-                               @RequestBody float price
-                               ) {
-        return ticketService.generateTicket(name, surname, date, price);
+    @PostMapping("")
+    public Ticket createTicket (@RequestBody Map<String, String> body) {
+        return ticketService.generateTicket(body.get("name"), body.get("surname"), LocalDateTime.parse(body.get("date")), Float.parseFloat(body.get("price")));
     }
 }
