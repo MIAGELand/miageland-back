@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -31,7 +30,7 @@ public class TicketController {
      * @return Ticket
      */
     @PatchMapping("/{nbTicket}")
-    public Ticket updateTicket(@PathVariable Long nbTicket) {
+    public Ticket updateTicket(@PathVariable Long nbTicket) throws TicketNotValidException {
         Ticket ticket = ticketRepository.findByNbTicket(nbTicket);
         ticketService.validateTicket(ticket);
         return ticketRepository.save(ticket);

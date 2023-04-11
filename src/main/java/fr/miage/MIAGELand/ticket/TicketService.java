@@ -26,11 +26,11 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-    public void validateTicket(Ticket ticket) {
+    public void validateTicket(Ticket ticket) throws TicketNotValidException {
         switch (ticket.getState()) {
             case PAID -> ticket.setState(TicketState.USED);
-            case USED -> throw new IllegalStateException("Ticket already used");
-            case CANCELLED -> throw new IllegalStateException("Ticket already cancelled");
+            case USED -> throw new TicketNotValidException("Ticket already used.");
+            case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
         }
     }
 

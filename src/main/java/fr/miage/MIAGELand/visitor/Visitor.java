@@ -11,6 +11,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
+@NoArgsConstructor
 public class Visitor {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
