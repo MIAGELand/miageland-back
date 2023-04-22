@@ -1,10 +1,9 @@
 package fr.miage.MIAGELand.employee;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -19,7 +18,21 @@ public class EmployeeController {
      * @return Employee
      */
     @GetMapping()
-    public Employee getEmployee(@RequestBody String email) {
-        return employeeRepository.findByEmail(email);
+    public Employee getEmployee(@RequestBody Map body) {
+        return employeeRepository.findByEmail(
+                (String) body.get("email")
+        );
     }
+
+    @PostMapping()
+    public Employee createEmployee(@RequestBody Map body) {
+        String name = (String) body.get("name");
+        String surname = (String) body.get("surname");
+        String email = (String) body.get("email");
+        EmployeeRole role = EmployeeRole.valueOf((String) body.get("role"));
+        Employee employee = new Employee(name, surname, email, role);
+        employeeRepository.save(employee);
+        return employee;
+    }
+
 }
