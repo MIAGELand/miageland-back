@@ -17,11 +17,9 @@ public class EmployeeController {
      * @param email
      * @return Employee
      */
-    @GetMapping()
-    public Employee getEmployee(@RequestBody Map body) {
-        return employeeRepository.findByEmail(
-                (String) body.get("email")
-        );
+    @GetMapping("/{email}")
+    public Employee getEmployee(@PathVariable String email) {
+        return employeeRepository.findByEmail(email);
     }
 
     @PostMapping()
