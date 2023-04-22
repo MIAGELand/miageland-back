@@ -23,7 +23,7 @@ public class EmployeeController {
     }
 
     /**
-     * Create an employee
+     * Create an employee in database
      * @param body
      * @return Employee
      */
