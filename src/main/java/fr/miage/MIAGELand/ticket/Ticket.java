@@ -2,7 +2,6 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.visitor.Visitor;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +14,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Ticket {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_generator")
+    @SequenceGenerator(name = "ticket_generator", sequenceName = "ticket_seq", allocationSize = 1)
     private Long nbTicket;
     @ManyToOne(targetEntity = Visitor.class)
     private Visitor visitor;
