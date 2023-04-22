@@ -22,6 +22,11 @@ public class EmployeeController {
         return employeeRepository.findByEmail(email);
     }
 
+    /**
+     * Create an employee
+     * @param body
+     * @return Employee
+     */
     @PostMapping()
     public Employee createEmployee(@RequestBody Map body) {
         String name = (String) body.get("name");
