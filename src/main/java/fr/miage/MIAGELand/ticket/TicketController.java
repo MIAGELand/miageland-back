@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,6 +23,11 @@ public class TicketController {
     @GetMapping("/{nbTicket}")
     public Ticket getTicket(@PathVariable Long nbTicket) {
         return ticketRepository.findByNbTicket(nbTicket);
+    }
+
+    @GetMapping("")
+    public List<Ticket> getAllTickets() {
+        return ticketRepository.findAll();
     }
 
     /**
