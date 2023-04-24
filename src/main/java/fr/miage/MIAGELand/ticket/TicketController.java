@@ -1,9 +1,10 @@
 package fr.miage.MIAGELand.ticket;
 
+import fr.miage.MIAGELand.utils.DateConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +44,23 @@ public class TicketController {
     }
 
     /**
-     * Create a ticket
+     * Create the tickets in database
      * @param body
      * @return Ticket
      */
     @PostMapping("")
-    public Ticket createTicket (@RequestBody Map<String, String> body) {
-        return ticketService.generateTicket(body.get("name"), body.get("surname"), LocalDateTime.parse(body.get("date")), Float.parseFloat(body.get("price")));
+    public List<Ticket> createTicket (@RequestBody Map<String, Map<String, String>> body) {
+        List<Ticket> tickets = new ArrayList<>();
+        for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
+            Map<String, String> value = entry.getValue();
+            Ticket ticket = ticketService.generateTicket(
+                    value.get("name"),
+                    value.get("surname"),
+                    DateConverter.convertFakerDate(value.get("date")),
+                    Float.parseFloat(value.get("price"))
+            );
+            tickets.add(ticket);
+        }
+        return tickets;
     }
 }

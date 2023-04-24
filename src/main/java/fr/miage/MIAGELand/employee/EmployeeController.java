@@ -3,6 +3,7 @@ package fr.miage.MIAGELand.employee;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,14 +30,19 @@ public class EmployeeController {
      * @return Employee
      */
     @PostMapping()
-    public Employee createEmployee(@RequestBody Map body) {
-        String name = (String) body.get("name");
-        String surname = (String) body.get("surname");
-        String email = (String) body.get("email");
-        EmployeeRole role = EmployeeRole.valueOf((String) body.get("role"));
-        Employee employee = new Employee(name, surname, email, role);
-        employeeRepository.save(employee);
-        return employee;
+    public List<Employee> createEmployee(@RequestBody  Map<String, Map<String, String>> body) {
+        List<Employee> employees = new ArrayList<>();
+        for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
+            Map<String, String> value = entry.getValue();
+            Employee employee = new Employee(
+                    value.get("name"),
+                    value.get("surname"),
+                    value.get("email"),
+                    EmployeeRole.valueOf(value.get("role"))
+            );
+            employees.add(employee);
+        }
+        return employeeRepository.saveAll(employees);
     }
 
     @GetMapping("")
