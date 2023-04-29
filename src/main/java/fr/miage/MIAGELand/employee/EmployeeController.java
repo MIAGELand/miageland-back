@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.employee;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,5 +51,9 @@ public class EmployeeController {
         return employeeRepository.findAll();
     }
 
-
+    @DeleteMapping("/{email}")
+    @Transactional
+    public void removeEmployee(@PathVariable String email) {
+        employeeRepository.deleteByEmail(email);
+    }
 }
