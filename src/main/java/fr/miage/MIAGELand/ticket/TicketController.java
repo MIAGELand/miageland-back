@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.ticket;
 
+import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.utils.DateConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,20 @@ public class TicketController {
         return ticketRepository.findByNbTicket(nbTicket);
     }
 
-    @GetMapping("")
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+    @GetMapping()
+    public List<ApiTicket> getAllTickets() {
+        List<ApiTicket> apiTickets = new ArrayList<>();
+        for (Ticket ticket : ticketRepository.findAll()) {
+            apiTickets.add(new ApiTicket(
+                    ticket.getNbTicket(),
+                    ticket.getState(),
+                    ticket.getPrice(),
+                    ticket.getDate(),
+                    ticket.getVisitor().getName(),
+                    ticket.getVisitor().getId()
+            ));
+        }
+        return apiTickets;
     }
 
     /**
