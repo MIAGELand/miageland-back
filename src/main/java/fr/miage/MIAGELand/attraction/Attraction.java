@@ -1,9 +1,6 @@
 package fr.miage.MIAGELand.attraction;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,8 +12,14 @@ import lombok.Setter;
 public class Attraction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "attraction_generator")
+    @SequenceGenerator(name = "attraction_generator", sequenceName = "attraction_seq", allocationSize = 1)
     private Long id;
     private String name;
     private boolean opened;
+
+    public Attraction(String name, boolean opened) {
+        this.name = name;
+        this.opened = opened;
+    }
 }
