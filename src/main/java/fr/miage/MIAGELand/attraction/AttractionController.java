@@ -33,7 +33,6 @@ public class AttractionController {
 
     @PostMapping()
     public List<Attraction> createEmployee(@RequestBody  Map<String, Map<String, String>> body) {
-        System.out.println(body);
         List<Attraction> attractions = new ArrayList<>();
         for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
             Map<String, String> value = entry.getValue();

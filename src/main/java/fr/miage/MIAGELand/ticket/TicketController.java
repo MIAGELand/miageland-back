@@ -50,7 +50,6 @@ public class TicketController {
      */
     @PatchMapping("/{nbTicket}")
     public Ticket updateTicket(@PathVariable Long nbTicket, @RequestBody Map<String, String> body) throws TicketNotValidException {
-        System.out.println(body);
         if (!body.containsKey("state")) {
             throw new IllegalArgumentException("State is required");
         } else {

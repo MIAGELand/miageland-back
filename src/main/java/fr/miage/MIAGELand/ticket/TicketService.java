@@ -36,10 +36,15 @@ public class TicketService {
     }
 
     public void cancelTicket(Ticket ticket) throws TicketNotValidException {
-        switch (ticket.getState()) {
-            case PAID, RESERVED -> ticket.setState(TicketState.CANCELLED);
-            case USED -> throw new TicketNotValidException("Ticket already used.");
-            case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
+        boolean isDateValid = ticket.getDate().isBefore(LocalDateTime.now().plusDays(7));
+        if (isDateValid) {
+            switch (ticket.getState()) {
+                case PAID, RESERVED -> ticket.setState(TicketState.CANCELLED);
+                case USED -> throw new TicketNotValidException("Ticket already used.");
+                case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
+            }
+        } else {
+            throw new TicketNotValidException("Ticket cannot be cancelled. Date invalid.");
         }
     }
 
