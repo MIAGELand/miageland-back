@@ -36,7 +36,7 @@ public class TicketService {
     }
 
     public void cancelTicket(Ticket ticket) throws TicketNotValidException {
-        boolean isDateValid = ticket.getDate().isBefore(LocalDateTime.now().plusDays(7));
+        boolean isDateValid = ticket.getDate().isAfter(LocalDateTime.now().plusDays(7));
         if (isDateValid) {
             switch (ticket.getState()) {
                 case PAID, RESERVED -> ticket.setState(TicketState.CANCELLED);
