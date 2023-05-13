@@ -16,7 +16,7 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_generator")
     @SequenceGenerator(name = "ticket_generator", sequenceName = "ticket_seq", allocationSize = 1)
-    private Long nbTicket;
+    private Long id;
     @ManyToOne(targetEntity = Visitor.class)
     private Visitor visitor;
     private LocalDateTime date;

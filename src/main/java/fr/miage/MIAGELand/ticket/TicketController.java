@@ -18,13 +18,13 @@ public class TicketController {
     private final TicketService ticketService;
 
     /**
-     * Get ticket by nbTicket
-     * @param nbTicket
+     * Get ticket by id
+     * @param id
      * @return Ticket
      */
-    @GetMapping("/{nbTicket}")
-    public Ticket getTicket(@PathVariable Long nbTicket) {
-        return ticketRepository.findByNbTicket(nbTicket);
+    @GetMapping("/{id}")
+    public Ticket getTicket(@PathVariable Long id) {
+        return ticketRepository.findById(id).orElseThrow();
     }
 
     @GetMapping()
@@ -32,7 +32,7 @@ public class TicketController {
         List<ApiTicket> apiTickets = new ArrayList<>();
         for (Ticket ticket : ticketRepository.findAll()) {
             apiTickets.add(new ApiTicket(
-                    ticket.getNbTicket(),
+                    ticket.getId(),
                     ticket.getState(),
                     ticket.getPrice(),
                     ticket.getDate(),
@@ -45,15 +45,15 @@ public class TicketController {
 
     /**
      * Update ticket state to used
-     * @param nbTicket
+     * @param id
      * @return Ticket
      */
-    @PatchMapping("/{nbTicket}")
-    public Ticket updateTicket(@PathVariable Long nbTicket, @RequestBody Map<String, String> body) throws TicketNotValidException {
+    @PatchMapping("/{id}")
+    public Ticket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body) throws TicketNotValidException {
         if (!body.containsKey("state")) {
             throw new IllegalArgumentException("State is required");
         } else {
-            Ticket ticket = ticketRepository.findByNbTicket(nbTicket);
+            Ticket ticket = ticketRepository.findById(id).orElseThrow();
             switch (Enum.valueOf(TicketState.class, body.get("state"))) {
                 case USED -> ticketService.validateTicket(ticket);
                 case CANCELLED -> ticketService.cancelTicket(ticket);

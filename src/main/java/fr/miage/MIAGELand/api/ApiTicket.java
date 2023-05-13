@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ApiTicket {
-    private Long nbTicket;
+    private Long id;
     private TicketState state;
     private float price;
     private LocalDateTime date;
