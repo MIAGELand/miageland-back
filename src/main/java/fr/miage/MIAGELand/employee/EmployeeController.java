@@ -14,6 +14,7 @@ import java.util.Map;
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
+    private final EmployeeService employeeService;
 
     /**
      * Get employee by email
@@ -51,9 +52,20 @@ public class EmployeeController {
         return employeeRepository.findAll();
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/{id}")
     @Transactional
-    public void removeEmployee(@PathVariable String email) {
-        employeeRepository.deleteByEmail(email);
+    public void removeEmployee(@PathVariable Long id) {
+        employeeRepository.deleteById(id);
+    }
+
+    @PatchMapping("/{id}")
+    public Employee updateEmployee(@PathVariable Long id, @RequestBody Map<String, String> body) throws EmployeeRoleNotValidException {
+        Employee employee = employeeRepository.findById(id).orElseThrow();
+        switch (Enum.valueOf(EmployeeRole.class, body.get("role"))) {
+            case ADMIN -> employeeService.upgradeEmployeeRole(employee);
+            case CLASSIC -> employeeService.downgradeEmployeeRole(employee);
+            default -> throw new EmployeeRoleNotValidException("Employee role is not valid.");
+        }
+        return employeeRepository.save(employee);
     }
 }
