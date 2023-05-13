@@ -17,13 +17,16 @@ public class TicketService {
                                  LocalDateTime date,
                                  float price) {
 
-        // TODO : CHANGE BY SEARCHING IN DB AND RETURNING THE VISITOR
-        Visitor visitor = new Visitor(name, surname);
-        visitorRepository.save(visitor);
-
-        Ticket ticket = new Ticket(visitor, date, price, TicketState.PAID);
-
-        return ticketRepository.save(ticket);
+        Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
+        if (visitor == null) {
+            Visitor newVisitor = new Visitor(name, surname);
+            visitorRepository.save(newVisitor);
+            Ticket ticket = new Ticket(newVisitor, date, price, TicketState.PAID);
+            return ticketRepository.save(ticket);
+        } else {
+            Ticket ticket = new Ticket(visitor, date, price, TicketState.PAID);
+            return ticketRepository.save(ticket);
+        }
     }
 
     public void validateTicket(Ticket ticket) throws TicketNotValidException {
