@@ -49,10 +49,19 @@ public class TicketController {
      * @return Ticket
      */
     @PatchMapping("/{nbTicket}")
-    public Ticket updateTicket(@PathVariable Long nbTicket) throws TicketNotValidException {
-        Ticket ticket = ticketRepository.findByNbTicket(nbTicket);
-        ticketService.validateTicket(ticket);
-        return ticketRepository.save(ticket);
+    public Ticket updateTicket(@PathVariable Long nbTicket, @RequestBody Map<String, String> body) throws TicketNotValidException {
+        System.out.println(body);
+        if (!body.containsKey("state")) {
+            throw new IllegalArgumentException("State is required");
+        } else {
+            Ticket ticket = ticketRepository.findByNbTicket(nbTicket);
+            switch (Enum.valueOf(TicketState.class, body.get("state"))) {
+                case USED -> ticketService.validateTicket(ticket);
+                case CANCELLED -> ticketService.cancelTicket(ticket);
+                default -> throw new IllegalArgumentException("State is not valid");
+            }
+            return ticketRepository.save(ticket);
+        }
     }
 
     /**

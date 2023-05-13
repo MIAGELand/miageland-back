@@ -29,6 +29,15 @@ public class TicketService {
     public void validateTicket(Ticket ticket) throws TicketNotValidException {
         switch (ticket.getState()) {
             case PAID -> ticket.setState(TicketState.USED);
+            case RESERVED -> throw new TicketNotValidException("Ticket not paid.");
+            case USED -> throw new TicketNotValidException("Ticket already used.");
+            case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
+        }
+    }
+
+    public void cancelTicket(Ticket ticket) throws TicketNotValidException {
+        switch (ticket.getState()) {
+            case PAID, RESERVED -> ticket.setState(TicketState.CANCELLED);
             case USED -> throw new TicketNotValidException("Ticket already used.");
             case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
         }
