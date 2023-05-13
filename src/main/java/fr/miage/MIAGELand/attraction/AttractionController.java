@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.attraction;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 public class AttractionController {
 
     private final AttractionRepository attractionRepository;
+    private final AttractionService attractionService;
 
     /**
      * Get attraction by id
@@ -42,5 +44,22 @@ public class AttractionController {
             attractions.add(attraction);
         }
         return attractionRepository.saveAll(attractions);
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public void removeAttraction(@PathVariable Long id) {
+        attractionRepository.deleteById(id);
+    }
+
+    @PatchMapping("/{id}")
+    public Attraction updateAttraction(@PathVariable Long id, @RequestBody Map<String, String> body) throws AttractionNotFoundException, AttractionStateException {
+        Attraction attraction = attractionRepository.findById(id).orElseThrow(() -> new AttractionNotFoundException(id));
+        switch (body.get("opened")) {
+            case "true" -> attractionService.updateState(attraction, true);
+            case "false" -> attractionService.updateState(attraction, false);
+            default -> throw new AttractionStateException("Invalid state.");
+        }
+        return attractionRepository.save(attraction);
     }
 }
