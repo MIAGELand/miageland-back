@@ -14,6 +14,8 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final VisitorRepository visitorRepository;
+
+    // TODO : check if gauge is not exceeded
     public Ticket generateTicket(String name, String surname,
                                  LocalDateTime date,
                                  float price) {
