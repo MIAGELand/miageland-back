@@ -5,6 +5,7 @@ import fr.miage.MIAGELand.utils.DateConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +30,16 @@ public class TicketController {
 
     @GetMapping()
     public List<ApiTicket> getAllTickets() {
-        List<ApiTicket> apiTickets = new ArrayList<>();
-        for (Ticket ticket : ticketRepository.findAll()) {
-            apiTickets.add(new ApiTicket(
-                    ticket.getId(),
-                    ticket.getState(),
-                    ticket.getPrice(),
-                    ticket.getDate(),
-                    ticket.getVisitor().getName(),
-                    ticket.getVisitor().getId()
-            ));
-        }
-        return apiTickets;
+        return ticketRepository.findAll().stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
     }
 
     /**
