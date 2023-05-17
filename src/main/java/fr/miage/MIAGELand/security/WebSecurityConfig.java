@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -27,8 +26,9 @@ public class WebSecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().permitAll()
-                ).cors(AbstractHttpConfigurer::disable
-                ).csrf(AbstractHttpConfigurer::disable);
+                )
+                .cors().disable() // Disable the default CORS configuration
+                .csrf().disable(); // Disable CSRF protection for simplicity
         return http.build();
     }
 
@@ -38,10 +38,12 @@ public class WebSecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
-                    registry.addMapping("/api/**").allowedOrigins("*").allowedMethods("*");
+                    registry.addMapping("/api/**")
+                            .allowedOrigins("http://127.0.0.1:5173")
+                            .allowedMethods("*")
+                            .allowCredentials(true); // Allow credentials (cookies) in the CORS response
                 }
             }
         };
     }
-
 }
