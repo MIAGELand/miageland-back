@@ -17,7 +17,7 @@ public class ParkController {
         return parkRepository.findById(1L).orElseThrow();
     }
     @PatchMapping("/gauge")
-    public Park updateGauge(@RequestBody Map<String, String> body) {
+    public Park updateGauge(@RequestBody Map<String, String> body) throws IllegalGaugeException {
         if (!body.containsKey("gauge")) {
             throw new IllegalArgumentException("Gauge is required");
         } else {
