@@ -1,5 +1,7 @@
 package fr.miage.MIAGELand.employee;
 
+import fr.miage.MIAGELand.security.NotAllowedException;
+import fr.miage.MIAGELand.security.SecurityService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeService employeeService;
+    private final SecurityService securityService;
 
     /**
      * Get employee by email
@@ -54,12 +57,21 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void removeEmployee(@PathVariable Long id) {
+    public void removeEmployee(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isAdmin(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         employeeRepository.deleteById(id);
     }
 
     @PatchMapping("/{id}")
-    public Employee updateEmployee(@PathVariable Long id, @RequestBody Map<String, String> body) throws EmployeeRoleNotValidException {
+    public Employee updateEmployee(@PathVariable Long id,
+                                   @RequestBody Map<String, String> body,
+                                   @RequestHeader("Authorization") String authorizationHeader) throws EmployeeRoleNotValidException, NotAllowedException {
+        if (!securityService.isAdmin(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+
         Employee employee = employeeRepository.findById(id).orElseThrow();
         switch (Enum.valueOf(EmployeeRole.class, body.get("role"))) {
             case ADMIN -> employeeService.upgradeEmployeeRole(employee);
