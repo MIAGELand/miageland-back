@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @AllArgsConstructor
 @Getter
 @Setter
-public class ApiStatsTicket {
+public class MonthlyTicketInfos {
+
+    private String monthYear;
     private NumberStatsTicket numberStatsTicket;
-    private List<MonthlyTicketInfos> monthlyTicketInfos;
 }
