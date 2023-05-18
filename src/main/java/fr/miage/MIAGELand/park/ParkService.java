@@ -5,8 +5,7 @@ import fr.miage.MIAGELand.ticket.TicketService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,8 +24,11 @@ public class ParkService {
         List<Ticket> ticketList = ticketService.getAllTicketsNextDays();
 
         // Calculate the minimum gauge needed based on the number of tickets per date
-        Map<LocalDateTime, Long> ticketCountByDate = ticketList.stream()
-                .collect(Collectors.groupingBy(ticket -> ticket.getDate().truncatedTo(ChronoUnit.DAYS), Collectors.counting()));
+        Map<YearMonth, Long> ticketCountByDate = ticketList.stream()
+                .collect(Collectors.groupingBy(
+                        ticket -> YearMonth.from(ticket.getDate()),
+                                Collectors.counting())
+                        );
         int minGauge = ticketCountByDate.values().stream().mapToInt(Long::intValue).max().orElseThrow();
         if (gauge < minGauge) {
             throw new IllegalGaugeException("Gauge must be at least " + minGauge + " for the upcoming days.");
