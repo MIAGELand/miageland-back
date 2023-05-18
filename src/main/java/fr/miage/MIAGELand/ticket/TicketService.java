@@ -1,12 +1,18 @@
 package fr.miage.MIAGELand.ticket;
 
+import fr.miage.MIAGELand.api.stats.MonthlyTicketInfos;
+import fr.miage.MIAGELand.api.stats.NumberStatsTicket;
 import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -57,4 +63,51 @@ public class TicketService {
     public List<Ticket> getAllTicketsNextDays() {
         return ticketRepository.findAllByDateAfter(LocalDateTime.now());
     }
+
+    public List<MonthlyTicketInfos> getMonthlyTicketInfos() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+        Map<YearMonth, Long> ticketCountByDate =
+                ticketRepository.findAll().stream()
+                        .collect(Collectors.groupingBy(
+                        ticket -> YearMonth.from(ticket.getDate()),
+                        Collectors.counting())
+                );
+        // Create the MonthlyTicketInfos grouped by MM/YY found before
+        return ticketCountByDate.keySet().stream()
+                .map(monthDate -> new MonthlyTicketInfos(
+                        monthDate.format(formatter),
+                        new NumberStatsTicket(
+                                ticketRepository.countAllByDateBetween(
+                                        monthDate.atDay(1).atStartOfDay(),
+                                        monthDate.atEndOfMonth().atTime(23, 59, 59)
+                                ),
+                                ticketRepository.countAllByDateBetweenAndState(
+                                        monthDate.atDay(1).atStartOfDay(),
+                                        monthDate.atEndOfMonth().atTime(23, 59, 59),
+                                        TicketState.PAID
+                                ),
+                                ticketRepository.countAllByDateBetweenAndState(
+                                        monthDate.atDay(1).atStartOfDay(),
+                                        monthDate.atEndOfMonth().atTime(23, 59, 59),
+                                        TicketState.USED
+                                ),
+                                ticketRepository.countAllByDateBetweenAndState(
+                                        monthDate.atDay(1).atStartOfDay(),
+                                        monthDate.atEndOfMonth().atTime(23, 59, 59),
+                                        TicketState.CANCELLED
+                                )
+                        )
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public NumberStatsTicket getGlobalStatsTicket() {
+        return new NumberStatsTicket(
+                ticketRepository.count(),
+                ticketRepository.countByState(TicketState.PAID),
+                ticketRepository.countByState(TicketState.USED),
+                ticketRepository.countByState(TicketState.CANCELLED)
+        );
+    }
+
 }

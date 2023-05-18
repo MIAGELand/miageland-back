@@ -12,4 +12,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByDateAfter(LocalDateTime now);
 
     long countByState(TicketState ticketState);
+
+    long countAllByDateBetween(LocalDateTime begin, LocalDateTime end);
+
+    long countAllByDateBetweenAndState(LocalDateTime begin, LocalDateTime end, TicketState state);
 }

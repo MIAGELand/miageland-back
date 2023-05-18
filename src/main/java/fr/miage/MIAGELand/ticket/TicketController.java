@@ -87,10 +87,8 @@ public class TicketController {
     @GetMapping("/stats")
     public ApiStatsTicket getStats() {
         return new ApiStatsTicket(
-                ticketRepository.count(),
-                ticketRepository.countByState(TicketState.PAID),
-                ticketRepository.countByState(TicketState.USED),
-                ticketRepository.countByState(TicketState.CANCELLED)
+                ticketService.getGlobalStatsTicket(),
+                ticketService.getMonthlyTicketInfos()
         );
     }
 
