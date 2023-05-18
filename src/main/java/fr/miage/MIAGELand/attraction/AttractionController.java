@@ -1,6 +1,9 @@
 package fr.miage.MIAGELand.attraction;
 
+import fr.miage.MIAGELand.api.stats.ApiStatsAttraction;
+import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
 import fr.miage.MIAGELand.employee.EmployeeRepository;
+import fr.miage.MIAGELand.employee.EmployeeRole;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import jakarta.transaction.Transactional;
@@ -70,5 +73,14 @@ public class AttractionController {
             default -> throw new AttractionStateException("Invalid state.");
         }
         return attractionRepository.save(attraction);
+    }
+
+    @GetMapping("/stats")
+    public ApiStatsAttraction getAttractionStats() {
+        return new ApiStatsAttraction(
+                attractionRepository.count(),
+                attractionRepository.countByOpened(true),
+                attractionRepository.countByOpened(false)
+        );
     }
 }

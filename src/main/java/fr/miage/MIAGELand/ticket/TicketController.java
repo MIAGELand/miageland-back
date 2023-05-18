@@ -1,6 +1,7 @@
 package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
+import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
 import fr.miage.MIAGELand.utils.DateConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -82,4 +83,15 @@ public class TicketController {
         }
         return tickets;
     }
+
+    @GetMapping("/stats")
+    public ApiStatsTicket getStats() {
+        return new ApiStatsTicket(
+                ticketRepository.count(),
+                ticketRepository.countByState(TicketState.PAID),
+                ticketRepository.countByState(TicketState.USED),
+                ticketRepository.countByState(TicketState.CANCELLED)
+        );
+    }
+
 }

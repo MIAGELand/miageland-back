@@ -7,4 +7,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Employee findById(long id);
     void deleteById(long id);
+
+    long countByRole(EmployeeRole employeeRole);
 }

@@ -10,4 +10,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Ticket findById(long id);
 
     List<Ticket> findAllByDateAfter(LocalDateTime now);
+
+    long countByState(TicketState ticketState);
 }

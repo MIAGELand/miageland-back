@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.employee;
 
+import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import jakarta.transaction.Transactional;
@@ -79,5 +80,14 @@ public class EmployeeController {
             default -> throw new EmployeeRoleNotValidException("Employee role is not valid.");
         }
         return employeeRepository.save(employee);
+    }
+
+    @GetMapping("/stats")
+    public ApiStatsEmployee getEmployeeStats() {
+        return new ApiStatsEmployee(
+                employeeRepository.count(),
+                employeeRepository.countByRole(EmployeeRole.ADMIN),
+                employeeRepository.countByRole(EmployeeRole.CLASSIC)
+        );
     }
 }
