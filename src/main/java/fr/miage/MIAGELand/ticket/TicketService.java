@@ -1,7 +1,5 @@
 package fr.miage.MIAGELand.ticket;
 
-import fr.miage.MIAGELand.api.stats.MonthlyTicketInfos;
-import fr.miage.MIAGELand.api.stats.NumberStatsTicket;
 import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
@@ -9,12 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -77,70 +70,6 @@ public class TicketService {
 
     public List<Ticket> getAllTicketsNextDays() {
         return ticketRepository.findAllByDateAfter(LocalDateTime.now());
-    }
-
-    public List<MonthlyTicketInfos> getMonthlyTicketInfos() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
-
-        List<Ticket> ticketList = ticketRepository.findAll();
-
-        Map<YearMonth, Long> ticketCountByDate = new HashMap<>();
-        Map<YearMonth, Double> ticketPriceByDate = new HashMap<>();
-        Map<YearMonth, Double> ticketNotCancelledCountByDate = new HashMap<>();
-
-        for (Ticket ticket : ticketList) {
-            YearMonth yearMonth = YearMonth.from(ticket.getDate());
-
-            ticketCountByDate.put(yearMonth, ticketCountByDate.getOrDefault(yearMonth, 0L) + 1);
-            ticketPriceByDate.put(yearMonth, ticketPriceByDate.getOrDefault(yearMonth, 0.0) + ticket.getPrice());
-
-            if (!ticket.getState().equals(TicketState.CANCELLED)) {
-                ticketNotCancelledCountByDate.put(yearMonth, ticketNotCancelledCountByDate.getOrDefault(yearMonth, 0.0) + ticket.getPrice());
-            }
-        }
-
-        return ticketCountByDate.entrySet().stream()
-                .map(entry -> {
-                    YearMonth monthDate = entry.getKey();
-                    Long ticketCount = entry.getValue();
-                    Double ticketPrice = ticketPriceByDate.get(monthDate);
-                    Double ticketNotCancelledCount = ticketNotCancelledCountByDate.get(monthDate);
-
-                    return new MonthlyTicketInfos(
-                            monthDate.format(formatter),
-                            new NumberStatsTicket(
-                                    ticketCount,
-                                    ticketRepository.countAllByDateBetweenAndState(
-                                            monthDate.atDay(1).atStartOfDay(),
-                                            monthDate.atEndOfMonth().atTime(23, 59, 59),
-                                            TicketState.PAID
-                                    ),
-                                    ticketRepository.countAllByDateBetweenAndState(
-                                            monthDate.atDay(1).atStartOfDay(),
-                                            monthDate.atEndOfMonth().atTime(23, 59, 59),
-                                            TicketState.USED
-                                    ),
-                                    ticketRepository.countAllByDateBetweenAndState(
-                                            monthDate.atDay(1).atStartOfDay(),
-                                            monthDate.atEndOfMonth().atTime(23, 59, 59),
-                                            TicketState.CANCELLED
-                                    )
-                            ),
-                            ticketPrice,
-                            ticketNotCancelledCount
-                    );
-                })
-                .collect(Collectors.toList());
-    }
-
-
-    public NumberStatsTicket getGlobalStatsTicket() {
-        return new NumberStatsTicket(
-                ticketRepository.count(),
-                ticketRepository.countByState(TicketState.PAID),
-                ticketRepository.countByState(TicketState.USED),
-                ticketRepository.countByState(TicketState.CANCELLED)
-        );
     }
 
 }

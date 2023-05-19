@@ -2,6 +2,8 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
+import fr.miage.MIAGELand.stats.MonthlyTicketInfo;
+import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ public class TicketController {
 
     private final TicketRepository ticketRepository;
     private final TicketService ticketService;
+    private final MonthlyTicketInfoService monthlyTicketInfoService;
 
     /**
      * Get ticket by id
@@ -87,8 +90,8 @@ public class TicketController {
     @GetMapping("/stats")
     public ApiStatsTicket getStats() {
         return new ApiStatsTicket(
-                ticketService.getGlobalStatsTicket(),
-                ticketService.getMonthlyTicketInfos()
+                monthlyTicketInfoService.getGlobalStatsTicket(),
+                monthlyTicketInfoService.getMonthlyTicketInfos()
         );
     }
 

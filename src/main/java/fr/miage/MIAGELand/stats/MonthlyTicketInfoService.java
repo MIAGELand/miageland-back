@@ -1,5 +1,7 @@
 package fr.miage.MIAGELand.stats;
 
+import fr.miage.MIAGELand.api.stats.MonthlyTicketInfos;
+import fr.miage.MIAGELand.api.stats.NumberStatsTicket;
 import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static fr.miage.MIAGELand.ticket.TicketState.*;
 
@@ -58,5 +62,31 @@ public class MonthlyTicketInfoService {
         }
     }
 
+    public NumberStatsTicket getGlobalStatsTicket() {
+        return new NumberStatsTicket(
+                monthlyTicketInfoRepository.getAllTickets(),
+                monthlyTicketInfoRepository.getAllPaidTickets(),
+                monthlyTicketInfoRepository.getAllUsedTickets(),
+                monthlyTicketInfoRepository.getAllCancelledTickets()
+        );
+    }
+
+    public List<MonthlyTicketInfos> getMonthlyTicketInfos() {
+        List<MonthlyTicketInfo> monthlyTicketInfos = monthlyTicketInfoRepository.findAll();
+
+        return monthlyTicketInfos.stream()
+                .map(monthlyTicketInfo -> new MonthlyTicketInfos(
+                        monthlyTicketInfo.getMonthYear(),
+                        new NumberStatsTicket(
+                                monthlyTicketInfo.getTicketCount(),
+                                monthlyTicketInfo.getTicketPaidCount(),
+                                monthlyTicketInfo.getTicketUsedCount(),
+                                monthlyTicketInfo.getTicketCancelledCount()
+                        ),
+                        monthlyTicketInfo.getTotalPrice(),
+                        monthlyTicketInfo.getBenefits()
+                ))
+                .collect(Collectors.toList());
+    }
 }
 
