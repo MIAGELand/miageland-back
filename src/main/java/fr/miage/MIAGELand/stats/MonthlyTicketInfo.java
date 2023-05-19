@@ -20,4 +20,11 @@ public class MonthlyTicketInfo {
     private Long ticketCancelledCount;
     private Double totalPrice;
     private Double benefits;
+
+    public void updateData(MonthlyTicketInfoData monthlyTicketInfoData) {
+        ticketCount += monthlyTicketInfoData.getTicketCount();
+        ticketPaidCount += monthlyTicketInfoData.getTicketCount();
+        totalPrice += monthlyTicketInfoData.getTotalPrice();
+        benefits += monthlyTicketInfoData.getBenefits();
+    }
 }

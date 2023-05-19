@@ -17,26 +17,6 @@ public class TicketService {
     private final VisitorRepository visitorRepository;
     private final MonthlyTicketInfoService monthlyTicketInfoService;
 
-    // TODO : check if gauge is not exceeded
-    public Ticket generateTicket(String name, String surname, LocalDateTime date, float price) {
-        Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
-        Visitor newVisitor;
-        Ticket ticket;
-
-        if (visitor == null) {
-            newVisitor = new Visitor(name, surname);
-            visitorRepository.save(newVisitor);
-            ticket = new Ticket(newVisitor, date, price, TicketState.PAID);
-            ticketRepository.save(ticket);
-        } else {
-            ticket = new Ticket(visitor, date, price, TicketState.PAID);
-            ticketRepository.save(ticket);
-        }
-
-        monthlyTicketInfoService.updateTicketInfo(ticket,true);
-        return ticket;
-    }
-
     public void validateTicket(Ticket ticket) throws TicketNotValidException {
         TicketState previousState = ticket.getState();
         switch (previousState) {

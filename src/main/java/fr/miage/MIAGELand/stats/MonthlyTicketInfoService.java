@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static fr.miage.MIAGELand.ticket.TicketState.*;
@@ -33,11 +36,43 @@ public class MonthlyTicketInfoService {
             monthlyTicketInfoRepository.save(monthlyTicketInfo);
         }
     }
-    public void updateTicketListInfo(List<Ticket> ticket, boolean newTicket) {
-        for (Ticket t : ticket) {
-            updateTicketInfo(t, newTicket);
+    public void updateTicketListInfo(List<Ticket> tickets) {
+        Map<String, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
+
+        for (Ticket ticket : tickets) {
+            LocalDateTime date = ticket.getDate();
+            YearMonth monthYear = YearMonth.from(date);
+            String monthYearStr = monthYear.format(DateTimeFormatter.ofPattern("MM/yy"));
+
+            MonthlyTicketInfoData monthlyTicketInfoData = monthlyTicketInfoDataMap.get(monthYearStr);
+            MonthlyTicketInfoData newMonthlyTicketInfoData;
+            if (monthlyTicketInfoData == null) {
+                newMonthlyTicketInfoData = new MonthlyTicketInfoData();
+                monthlyTicketInfoDataMap.put(monthYearStr, newMonthlyTicketInfoData);
+                newMonthlyTicketInfoData.update(ticket);
+            } else {
+                monthlyTicketInfoData.update(ticket);
+            }
+        }
+
+        for (Map.Entry<String, MonthlyTicketInfoData> entry : monthlyTicketInfoDataMap.entrySet()) {
+            String monthYearStr = entry.getKey();
+            MonthlyTicketInfoData monthlyTicketInfoData = entry.getValue();
+
+            MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYearStr);
+            MonthlyTicketInfo newMonthlyTicketInfo;
+            if (monthlyTicketInfo == null) {
+                newMonthlyTicketInfo = new MonthlyTicketInfo();
+                newMonthlyTicketInfo.setMonthYear(monthYearStr);
+                setInitialDataByMonthlyData(monthlyTicketInfoData, newMonthlyTicketInfo);
+                monthlyTicketInfoRepository.save(newMonthlyTicketInfo);
+            } else {
+                monthlyTicketInfo.updateData(monthlyTicketInfoData);
+                monthlyTicketInfoRepository.save(monthlyTicketInfo);
+            }
         }
     }
+
     public void setInitialData(Ticket ticket, MonthlyTicketInfo monthlyTicketInfo) {
         monthlyTicketInfo.setTotalPrice((double) ticket.getPrice());
         monthlyTicketInfo.setTicketCount(1L);
@@ -45,6 +80,15 @@ public class MonthlyTicketInfoService {
         monthlyTicketInfo.setTicketUsedCount(0L);
         monthlyTicketInfo.setTicketCancelledCount(0L);
         monthlyTicketInfo.setBenefits((double) ticket.getPrice());
+    }
+
+    public void setInitialDataByMonthlyData(MonthlyTicketInfoData ticket, MonthlyTicketInfo monthlyTicketInfo) {
+        monthlyTicketInfo.setTotalPrice(ticket.getTotalPrice());
+        monthlyTicketInfo.setTicketCount(ticket.getTicketCount());
+        monthlyTicketInfo.setTicketPaidCount(ticket.getTicketCount());
+        monthlyTicketInfo.setTicketUsedCount(0L);
+        monthlyTicketInfo.setTicketCancelledCount(0L);
+        monthlyTicketInfo.setBenefits(ticket.getBenefits());
     }
 
     public void updateData(Ticket ticket,
@@ -68,6 +112,9 @@ public class MonthlyTicketInfoService {
     }
 
     public NumberStatsTicket getGlobalStatsTicket() {
+        if (monthlyTicketInfoRepository.count() == 0) {
+            return new NumberStatsTicket(0L, 0L, 0L, 0L);
+        }
         return new NumberStatsTicket(
                 monthlyTicketInfoRepository.getAllTickets(),
                 monthlyTicketInfoRepository.getAllPaidTickets(),
@@ -77,6 +124,9 @@ public class MonthlyTicketInfoService {
     }
 
     public List<MonthlyTicketInfos> getMonthlyTicketInfos() {
+        if (monthlyTicketInfoRepository.count() == 0) {
+            return new ArrayList<>();
+        }
         List<MonthlyTicketInfo> monthlyTicketInfos = monthlyTicketInfoRepository.findAll();
 
         return monthlyTicketInfos.stream()
