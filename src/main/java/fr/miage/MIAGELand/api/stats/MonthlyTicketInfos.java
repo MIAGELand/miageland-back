@@ -11,4 +11,6 @@ public class MonthlyTicketInfos {
 
     private String monthYear;
     private NumberStatsTicket numberStatsTicket;
+    private double totalAmount;
+    private double benefits;
 }
