@@ -14,6 +14,10 @@ public class ParkController {
     private final ParkRepository parkRepository;
     @GetMapping
     public Park getPark() {
+        if (parkRepository.count() == 0) {
+            Park initPark = new Park(1L, 10, java.time.LocalDateTime.now());
+            parkRepository.save(initPark);
+        }
         return parkRepository.findById(1L).orElseThrow();
     }
     @PatchMapping("/gauge")
