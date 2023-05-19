@@ -1,9 +1,11 @@
 package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
-import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final VisitorRepository visitorRepository;
     private final MonthlyTicketInfoService monthlyTicketInfoService;
+    private static final int DEFAULT_PAGE_SIZE = 100;
+
 
     public void validateTicket(Ticket ticket) throws TicketNotValidException {
         TicketState previousState = ticket.getState();
@@ -51,4 +55,8 @@ public class TicketService {
         return ticketRepository.findAllByDateAfter(LocalDateTime.now());
     }
 
+    public Page<Ticket> getTickets(int pageNumber) {
+        Pageable pageable = PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE);
+        return ticketRepository.findAll(pageable);
+    }
 }

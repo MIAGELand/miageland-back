@@ -2,13 +2,13 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
-import fr.miage.MIAGELand.stats.MonthlyTicketInfo;
 import fr.miage.MIAGELand.stats.MonthlyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
 import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,7 +37,7 @@ public class TicketController {
         return ticketRepository.findById(id).orElseThrow();
     }
 
-    @GetMapping()
+    @GetMapping("/all")
     public List<ApiTicket> getAllTickets() {
         return ticketRepository.findAll().stream().map(
                 ticket -> new ApiTicket(
@@ -123,6 +123,23 @@ public class TicketController {
     public void deleteAllTickets() {
         monthlyTicketInfoRepository.deleteAll();
         ticketRepository.deleteAll();
+    }
+
+    @GetMapping("")
+    public List<ApiTicket> getTickets(
+            @RequestParam(name="page", defaultValue = "0") int page
+    ) {
+        Page<Ticket> tickets = ticketService.getTickets(page);
+        return tickets.stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
     }
 
 }
