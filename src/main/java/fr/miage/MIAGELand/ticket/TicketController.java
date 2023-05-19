@@ -5,6 +5,8 @@ import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
 import fr.miage.MIAGELand.stats.MonthlyTicketInfo;
 import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
+import fr.miage.MIAGELand.visitor.Visitor;
+import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,7 @@ public class TicketController {
     private final TicketRepository ticketRepository;
     private final TicketService ticketService;
     private final MonthlyTicketInfoService monthlyTicketInfoService;
+    private final VisitorRepository visitorRepository;
 
     /**
      * Get ticket by id
@@ -72,18 +75,37 @@ public class TicketController {
      * @return Ticket
      */
     @PostMapping("")
-    public List<Ticket> createTicket (@RequestBody Map<String, Map<String, String>> body) {
+    public List<Ticket> createTickets(@RequestBody Map<String, Map<String, String>> ticketsData) {
         List<Ticket> tickets = new ArrayList<>();
-        for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
-            Map<String, String> value = entry.getValue();
-            Ticket ticket = ticketService.generateTicket(
-                    value.get("name"),
-                    value.get("surname"),
-                    DateConverter.convertFakerDate(value.get("date")),
-                    Float.parseFloat(value.get("price"))
-            );
-            tickets.add(ticket);
+        List<Visitor> newVisitors = new ArrayList<>();
+
+        for (Map<String, String> ticketData : ticketsData.values()) {
+            String name = ticketData.get("name");
+            String surname = ticketData.get("surname");
+            LocalDateTime date = DateConverter.convertFakerDate(ticketData.get("date"));
+            float price = Float.parseFloat(ticketData.get("price"));
+
+            Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
+            Visitor newVisitor;
+            if (visitor == null) {
+                newVisitor = new Visitor(name, surname);
+                newVisitors.add(newVisitor);
+                Ticket ticket = new Ticket(newVisitor, date, price, TicketState.PAID);
+                tickets.add(ticket);
+            } else {
+                Ticket ticket = new Ticket(visitor, date, price, TicketState.PAID);
+                tickets.add(ticket);
+            }
         }
+
+        if (!newVisitors.isEmpty()) {
+            visitorRepository.saveAll(newVisitors);
+        }
+
+        ticketRepository.saveAll(tickets);
+
+        monthlyTicketInfoService.updateTicketListInfo(tickets, true);
+
         return tickets;
     }
 

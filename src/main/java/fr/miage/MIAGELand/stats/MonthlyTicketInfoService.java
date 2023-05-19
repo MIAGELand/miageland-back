@@ -18,7 +18,6 @@ import static fr.miage.MIAGELand.ticket.TicketState.*;
 @AllArgsConstructor
 public class MonthlyTicketInfoService {
     private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
-
     public void updateTicketInfo(Ticket ticket, boolean newTicket) {
         LocalDateTime date = ticket.getDate();
         YearMonth monthYear = YearMonth.from(date);
@@ -27,7 +26,6 @@ public class MonthlyTicketInfoService {
         if (monthlyTicketInfo == null) {
             newMonthlyTicketInfo = new MonthlyTicketInfo();
             newMonthlyTicketInfo.setMonthYear(monthYear.format(DateTimeFormatter.ofPattern("MM/yy")));
-            newMonthlyTicketInfo.setTicketCount(1L);
             setInitialData(ticket, newMonthlyTicketInfo);
             monthlyTicketInfoRepository.save(newMonthlyTicketInfo);
         } else {
@@ -35,15 +33,22 @@ public class MonthlyTicketInfoService {
             monthlyTicketInfoRepository.save(monthlyTicketInfo);
         }
     }
+    public void updateTicketListInfo(List<Ticket> ticket, boolean newTicket) {
+        for (Ticket t : ticket) {
+            updateTicketInfo(t, newTicket);
+        }
+    }
     public void setInitialData(Ticket ticket, MonthlyTicketInfo monthlyTicketInfo) {
         monthlyTicketInfo.setTotalPrice((double) ticket.getPrice());
+        monthlyTicketInfo.setTicketCount(1L);
         monthlyTicketInfo.setTicketPaidCount(1L);
         monthlyTicketInfo.setTicketUsedCount(0L);
         monthlyTicketInfo.setTicketCancelledCount(0L);
         monthlyTicketInfo.setBenefits((double) ticket.getPrice());
     }
 
-    public void updateData(Ticket ticket, MonthlyTicketInfo monthlyTicketInfo,
+    public void updateData(Ticket ticket,
+                           MonthlyTicketInfo monthlyTicketInfo,
                            boolean newTicket) {
         if (newTicket) {
             monthlyTicketInfo.setTicketCount(monthlyTicketInfo.getTicketCount() + 1);

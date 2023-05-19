@@ -27,6 +27,15 @@ public class EmployeeController {
      */
     @GetMapping("/{email}")
     public Employee getEmployee(@PathVariable String email) {
+        if (employeeRepository.findAll().isEmpty()) {
+            Employee employee = new Employee(
+                   "Admin",
+                    "MiageLand",
+                    "admin",
+                    EmployeeRole.ADMIN
+            );
+            employeeRepository.save(employee);
+        }
         return employeeRepository.findByEmail(email);
     }
 
