@@ -1,9 +1,12 @@
 package fr.miage.MIAGELand.visitor;
 
+import fr.miage.MIAGELand.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Setter
@@ -18,6 +21,8 @@ public class Visitor {
     private String name;
     private String surname;
     private String email;
+    @OneToMany(targetEntity = Ticket.class, mappedBy = "visitor")
+    private List<Ticket> ticketList;
 
     public Visitor(String name, String surname) {
         this.name = name;

@@ -1,8 +1,10 @@
 package fr.miage.MIAGELand.visitor;
 
+import fr.miage.MIAGELand.api.ApiTicket;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,5 +39,21 @@ public class VisitorController {
             visitorRepository.save(visitor);
             return visitor;
         }
+    }
+
+    @GetMapping("/{id}/tickets")
+    public List<ApiTicket> getVisitorTickets(@PathVariable Long id) {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        System.out.println(visitor.getTicketList());
+        return visitor.getTicketList().stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
     }
 }
