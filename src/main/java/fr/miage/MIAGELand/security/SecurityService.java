@@ -11,11 +11,24 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
     private final EmployeeRepository employeeRepository;
 
-    public boolean isAdmin(String authorizationHeader) throws NotAllowedException {
+    public boolean isAdminOrManager(String authorizationHeader) throws NotAllowedException {
         String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
 
         Employee employee = employeeRepository.findByEmail(email);
-        if (employee == null || EmployeeRole.ADMIN != employee.getRole()) {
+        if (employee == null
+                || EmployeeRole.MANAGER != employee.getRole()
+                && EmployeeRole.ADMIN != employee.getRole()
+        ) {
+            throw new NotAllowedException("You are not allowed to do this.");
+        }
+        return true;
+    }
+
+    public boolean isManager(String authorizationHeader) throws NotAllowedException {
+        String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        Employee employee = employeeRepository.findByEmail(email);
+        if (employee == null || EmployeeRole.MANAGER != employee.getRole()) {
             throw new NotAllowedException("You are not allowed to do this.");
         }
         return true;

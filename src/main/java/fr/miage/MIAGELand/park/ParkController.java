@@ -1,5 +1,7 @@
 package fr.miage.MIAGELand.park;
 
+import fr.miage.MIAGELand.security.NotAllowedException;
+import fr.miage.MIAGELand.security.SecurityService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ public class ParkController {
 
     private final ParkService parkService;
     private final ParkRepository parkRepository;
+    private final SecurityService securityService;
     @GetMapping
     public Park getPark() {
         if (parkRepository.count() == 0) {
@@ -21,7 +24,12 @@ public class ParkController {
         return parkRepository.findById(1L).orElseThrow();
     }
     @PatchMapping("/gauge")
-    public Park updateGauge(@RequestBody Map<String, String> body) throws IllegalGaugeException {
+    public Park updateGauge(@RequestBody Map<String, String> body,
+                            @RequestHeader("Authorization") String authorizationHeader)
+            throws IllegalGaugeException, NotAllowedException {
+        if (!securityService.isManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         if (!body.containsKey("gauge")) {
             throw new IllegalArgumentException("Gauge is required");
         } else {

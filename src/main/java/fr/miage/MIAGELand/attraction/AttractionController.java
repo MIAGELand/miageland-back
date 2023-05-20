@@ -1,9 +1,6 @@
 package fr.miage.MIAGELand.attraction;
 
 import fr.miage.MIAGELand.api.stats.ApiStatsAttraction;
-import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
-import fr.miage.MIAGELand.employee.EmployeeRepository;
-import fr.miage.MIAGELand.employee.EmployeeRole;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import jakarta.transaction.Transactional;
@@ -39,7 +36,11 @@ public class AttractionController {
     }
 
     @PostMapping()
-    public List<Attraction> createAttraction(@RequestBody Map<String, Map<String, String>> body) {
+    public List<Attraction> createAttraction(@RequestBody Map<String, Map<String, String>> body,
+                                             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isAdminOrManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         List<Attraction> attractions = new ArrayList<>();
         for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
             Map<String, String> value = entry.getValue();
@@ -55,7 +56,7 @@ public class AttractionController {
     @DeleteMapping("/{id}")
     @Transactional
     public void removeAttraction(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
-        if (!securityService.isAdmin(authorizationHeader)) {
+        if (!securityService.isAdminOrManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
         attractionRepository.deleteById(id);
@@ -63,7 +64,7 @@ public class AttractionController {
 
     @PatchMapping("/{id}")
     public Attraction updateAttraction(@PathVariable Long id, @RequestBody Map<String, String> body, @RequestHeader("Authorization") String authorizationHeader) throws AttractionNotFoundException, AttractionStateException, NotAllowedException {
-        if (!securityService.isAdmin(authorizationHeader)) {
+        if (!securityService.isAdminOrManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
         Attraction attraction = attractionRepository.findById(id).orElseThrow(() -> new AttractionNotFoundException(id));

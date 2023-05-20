@@ -32,7 +32,7 @@ public class EmployeeController {
                    "Admin",
                     "MiageLand",
                     "admin",
-                    EmployeeRole.ADMIN
+                    EmployeeRole.MANAGER
             );
             employeeRepository.save(employee);
         }
@@ -45,7 +45,11 @@ public class EmployeeController {
      * @return Employee
      */
     @PostMapping()
-    public List<Employee> createEmployee(@RequestBody  Map<String, Map<String, String>> body) {
+    public List<Employee> createEmployee(@RequestBody Map<String, Map<String, String>> body,
+                                         @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         List<Employee> employees = new ArrayList<>();
         for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
             Map<String, String> value = entry.getValue();
@@ -68,7 +72,7 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     @Transactional
     public void removeEmployee(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
-        if (!securityService.isAdmin(authorizationHeader)) {
+        if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
         employeeRepository.deleteById(id);
@@ -78,7 +82,7 @@ public class EmployeeController {
     public Employee updateEmployee(@PathVariable Long id,
                                    @RequestBody Map<String, String> body,
                                    @RequestHeader("Authorization") String authorizationHeader) throws EmployeeRoleNotValidException, NotAllowedException {
-        if (!securityService.isAdmin(authorizationHeader)) {
+        if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
 
