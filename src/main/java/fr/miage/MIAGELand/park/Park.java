@@ -19,6 +19,7 @@ public class Park {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "park_generator")
     @SequenceGenerator(name = "park_generator", sequenceName = "park_seq", allocationSize = 1)
     private Long id;
-    private int gauge;
+    private Long minTicketGauge;
+    private Long gauge;
     private LocalDateTime modifiedAt;
 }

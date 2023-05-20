@@ -1,4 +1,4 @@
-package fr.miage.MIAGELand.stats;
+package fr.miage.MIAGELand.stats.monthly_ticket_info;
 
 import fr.miage.MIAGELand.api.stats.MonthlyTicketInfos;
 import fr.miage.MIAGELand.api.stats.NumberStatsTicket;

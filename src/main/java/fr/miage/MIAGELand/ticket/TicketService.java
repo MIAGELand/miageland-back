@@ -1,6 +1,6 @@
 package fr.miage.MIAGELand.ticket;
 
-import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
+import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

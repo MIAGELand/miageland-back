@@ -1,4 +1,4 @@
-package fr.miage.MIAGELand.stats;
+package fr.miage.MIAGELand.stats.monthly_ticket_info;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

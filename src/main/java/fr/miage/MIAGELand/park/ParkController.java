@@ -15,7 +15,7 @@ public class ParkController {
     @GetMapping
     public Park getPark() {
         if (parkRepository.count() == 0) {
-            Park initPark = new Park(1L, 10, java.time.LocalDateTime.now());
+            Park initPark = new Park(1L, 0L, 10L, java.time.LocalDateTime.now());
             parkRepository.save(initPark);
         }
         return parkRepository.findById(1L).orElseThrow();
@@ -25,7 +25,7 @@ public class ParkController {
         if (!body.containsKey("gauge")) {
             throw new IllegalArgumentException("Gauge is required");
         } else {
-            return parkService.setGauge(Integer.parseInt(body.get("gauge")));
+            return parkService.setGauge(Long.parseLong(body.get("gauge")));
         }
     }
 }

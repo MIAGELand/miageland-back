@@ -1,4 +1,4 @@
-package fr.miage.MIAGELand.stats;
+package fr.miage.MIAGELand.stats.monthly_ticket_info;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

@@ -2,8 +2,8 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
-import fr.miage.MIAGELand.stats.MonthlyTicketInfoRepository;
-import fr.miage.MIAGELand.stats.MonthlyTicketInfoService;
+import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoRepository;
+import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
 import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
