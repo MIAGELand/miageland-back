@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
+@Table(uniqueConstraints = { @UniqueConstraint(name = "UniqueNameAndSurname", columnNames = { "name", "surname" }) })
 public class Visitor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "visitor_generator")
@@ -21,5 +22,11 @@ public class Visitor {
     public Visitor(String name, String surname) {
         this.name = name;
         this.surname = surname;
+    }
+
+    public Visitor(String name, String surname, String email) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
     }
 }
