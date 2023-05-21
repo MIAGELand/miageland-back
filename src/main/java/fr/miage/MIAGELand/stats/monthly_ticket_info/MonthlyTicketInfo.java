@@ -15,6 +15,7 @@ public class MonthlyTicketInfo {
     @Id
     private String monthYear;
     private Long ticketCount;
+    private Long ticketReservedCount;
     private Long ticketPaidCount;
     private Long ticketUsedCount;
     private Long ticketCancelledCount;
@@ -23,8 +24,7 @@ public class MonthlyTicketInfo {
 
     public void updateData(MonthlyTicketInfoData monthlyTicketInfoData) {
         ticketCount += monthlyTicketInfoData.getTicketCount();
-        ticketPaidCount += monthlyTicketInfoData.getTicketCount();
+        ticketReservedCount += monthlyTicketInfoData.getTicketCount();
         totalPrice += monthlyTicketInfoData.getTotalPrice();
-        benefits += monthlyTicketInfoData.getBenefits();
     }
 }

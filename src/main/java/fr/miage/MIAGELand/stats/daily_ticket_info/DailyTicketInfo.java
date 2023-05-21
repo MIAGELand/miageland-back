@@ -16,6 +16,7 @@ public class DailyTicketInfo {
     @Id
     private String dayMonthYear;
     private Long ticketCount;
+    private Long ticketReservedCount;
     private Long ticketPaidCount;
     private Long ticketUsedCount;
     private Long ticketCancelledCount;
@@ -24,8 +25,7 @@ public class DailyTicketInfo {
 
     public void updateData(DailyTicketInfoData dailyTicketInfoData) {
         ticketCount += dailyTicketInfoData.getTicketCount();
-        ticketPaidCount += dailyTicketInfoData.getTicketCount();
+        ticketReservedCount += dailyTicketInfoData.getTicketCount();
         totalPrice += dailyTicketInfoData.getTotalPrice();
-        benefits += dailyTicketInfoData.getBenefits();
     }
 }
