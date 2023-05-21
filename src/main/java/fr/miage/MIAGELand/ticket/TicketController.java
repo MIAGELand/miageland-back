@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +92,7 @@ public class TicketController {
         for (Map<String, String> ticketData : ticketsData.values()) {
             String name = ticketData.get("name");
             String surname = ticketData.get("surname");
-            LocalDateTime date = DateConverter.convertFakerDate(ticketData.get("date"));
+            LocalDate date = DateConverter.convertLocalDate(ticketData.get("date"));
             float price = Float.parseFloat(ticketData.get("price"));
 
             Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);

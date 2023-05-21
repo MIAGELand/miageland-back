@@ -63,7 +63,9 @@ public class VisitorController {
     @GetMapping("/{id}/tickets")
     public List<ApiTicket> getVisitorTickets(@PathVariable Long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        System.out.println(visitor.getTicketList());
+        if (visitor.getTicketList().isEmpty()) {
+            return List.of();
+        }
         return visitor.getTicketList().stream().map(
                 ticket -> new ApiTicket(
                         ticket.getId(),

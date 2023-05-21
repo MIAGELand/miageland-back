@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,11 +20,11 @@ public class Ticket {
     private Long id;
     @ManyToOne(targetEntity = Visitor.class)
     private Visitor visitor;
-    private LocalDateTime date;
+    private LocalDate date;
     private float price;
     private TicketState state;
 
-    public Ticket(Visitor visitor, LocalDateTime date, float price, TicketState reserved) {
+    public Ticket(Visitor visitor, LocalDate date, float price, TicketState reserved) {
         this.visitor = visitor;
         this.date = date;
         this.price = price;

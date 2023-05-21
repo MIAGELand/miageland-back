@@ -3,11 +3,13 @@ package fr.miage.MIAGELand.ticket;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class TicketService {
     }
 
     public void cancelTicket(Ticket ticket) throws TicketNotValidException {
-        boolean isDateValid = ticket.getDate().isAfter(LocalDateTime.now().plusDays(7));
+        boolean isDateValid = ticket.getDate().isAfter(LocalDate.now().plusDays(7));
         TicketState previousState = ticket.getState();
         if (isDateValid) {
             switch (previousState) {
@@ -52,7 +54,7 @@ public class TicketService {
     }
 
     public List<Ticket> getAllTicketsNextDays() {
-        return ticketRepository.findAllByDateAfter(LocalDateTime.now());
+        return ticketRepository.findAllByDateAfter(LocalDate.now());
     }
 
     public Page<Ticket> getTickets(int pageNumber) {

@@ -6,6 +6,7 @@ import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -22,7 +23,7 @@ import static fr.miage.MIAGELand.ticket.TicketState.*;
 public class MonthlyTicketInfoService {
     private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
     public void updateTicketInfo(Ticket ticket, boolean newTicket) {
-        LocalDateTime date = ticket.getDate();
+        LocalDate date = ticket.getDate();
         YearMonth monthYear = YearMonth.from(date);
         MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear.format(DateTimeFormatter.ofPattern("MM/yy")));
         MonthlyTicketInfo newMonthlyTicketInfo;
@@ -40,7 +41,7 @@ public class MonthlyTicketInfoService {
         Map<String, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
 
         for (Ticket ticket : tickets) {
-            LocalDateTime date = ticket.getDate();
+            LocalDate date = ticket.getDate();
             YearMonth monthYear = YearMonth.from(date);
             String monthYearStr = monthYear.format(DateTimeFormatter.ofPattern("MM/yy"));
 

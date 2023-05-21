@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -14,7 +15,7 @@ public class ApiTicket {
     private Long id;
     private TicketState state;
     private float price;
-    private LocalDateTime date;
+    private LocalDate date;
     private String nameVisitor;
     private long idVisitor;
 }
