@@ -55,17 +55,7 @@ public class VisitorController {
             return new ApiVisitor(
                     visitor.getId(),
                     visitor.getName(),
-                    visitor.getSurname(),
-                    visitor.getTicketList().stream().map(
-                            ticket -> new ApiTicket(
-                                    ticket.getId(),
-                                    ticket.getState(),
-                                    ticket.getPrice(),
-                                    ticket.getDate(),
-                                    ticket.getVisitor().getName(),
-                                    ticket.getVisitor().getId()
-                            )
-                    ).toList()
+                    visitor.getSurname()
             );
         }
     }
@@ -84,5 +74,11 @@ public class VisitorController {
                         ticket.getVisitor().getId()
                 )
         ).toList();
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteVisitor(@PathVariable Long id) {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        visitorRepository.delete(visitor);
     }
 }
