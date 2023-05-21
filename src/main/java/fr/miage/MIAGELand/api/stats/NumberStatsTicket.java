@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 public class NumberStatsTicket {
     private long nbTotal;
+    private long nbReserved;
     private long nbPaid;
     private long nbUsed;
     private long nbCancelled;
