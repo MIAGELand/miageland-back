@@ -71,6 +71,7 @@ public class TicketController {
         } else {
             Ticket ticket = ticketRepository.findById(id).orElseThrow();
             switch (Enum.valueOf(TicketState.class, body.get("state"))) {
+                case PAID -> ticketService.payTicket(ticket);
                 case USED -> ticketService.validateTicket(ticket);
                 case CANCELLED -> ticketService.cancelTicket(ticket);
                 default -> throw new IllegalArgumentException("State is not valid");
@@ -110,10 +111,10 @@ public class TicketController {
             if (visitor == null) {
                 newVisitor = new Visitor(name, surname);
                 newVisitors.add(newVisitor);
-                Ticket ticket = new Ticket(newVisitor, date, price, TicketState.PAID);
+                Ticket ticket = new Ticket(newVisitor, date, price, TicketState.RESERVED);
                 tickets.add(ticket);
             } else {
-                Ticket ticket = new Ticket(visitor, date, price, TicketState.PAID);
+                Ticket ticket = new Ticket(visitor, date, price, TicketState.RESERVED);
                 tickets.add(ticket);
             }
         }
