@@ -1,6 +1,7 @@
 package fr.miage.MIAGELand.visitor;
 
 import fr.miage.MIAGELand.api.ApiTicket;
+import fr.miage.MIAGELand.api.ApiVisitor;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +17,30 @@ public class VisitorController {
     private final VisitorRepository visitorRepository;
 
     @GetMapping()
-    public Visitor getVisitor(@RequestParam String name, @RequestParam String surname) {
+    public ApiVisitor getVisitor(@RequestParam String name, @RequestParam String surname) {
         Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
         if (visitor == null) {
             throw new IllegalArgumentException("Visitor not found");
         } else {
-            return visitor;
+            return new ApiVisitor(
+                    visitor.getId(),
+                    visitor.getName(),
+                    visitor.getSurname(),
+                    visitor.getTicketList().stream().map(
+                            ticket -> new ApiTicket(
+                                    ticket.getId(),
+                                    ticket.getState(),
+                                    ticket.getPrice(),
+                                    ticket.getDate(),
+                                    ticket.getVisitor().getName(),
+                                    ticket.getVisitor().getId()
+                            )
+                    ).toList()
+            );
         }
     }
     @PostMapping
-    public Visitor createVisitor(@RequestBody Map<String, String> body) {
+    public ApiVisitor createVisitor(@RequestBody Map<String, String> body) {
         if (!body.containsKey("name")
             || !body.containsKey("surname")
             || !body.containsKey("email")) {
@@ -37,7 +52,21 @@ public class VisitorController {
                     body.get("email")
             );
             visitorRepository.save(visitor);
-            return visitor;
+            return new ApiVisitor(
+                    visitor.getId(),
+                    visitor.getName(),
+                    visitor.getSurname(),
+                    visitor.getTicketList().stream().map(
+                            ticket -> new ApiTicket(
+                                    ticket.getId(),
+                                    ticket.getState(),
+                                    ticket.getPrice(),
+                                    ticket.getDate(),
+                                    ticket.getVisitor().getName(),
+                                    ticket.getVisitor().getId()
+                            )
+                    ).toList()
+            );
         }
     }
 

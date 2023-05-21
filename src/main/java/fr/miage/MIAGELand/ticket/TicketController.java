@@ -57,7 +57,7 @@ public class TicketController {
      * @return Ticket
      */
     @PatchMapping("/{id}")
-    public Ticket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body) throws TicketNotValidException {
+    public ApiTicket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body) throws TicketNotValidException {
         if (!body.containsKey("state")) {
             throw new IllegalArgumentException("State is required");
         } else {
@@ -67,7 +67,15 @@ public class TicketController {
                 case CANCELLED -> ticketService.cancelTicket(ticket);
                 default -> throw new IllegalArgumentException("State is not valid");
             }
-            return ticketRepository.save(ticket);
+            ticketRepository.save(ticket);
+            return new ApiTicket(
+                    ticket.getId(),
+                    ticket.getState(),
+                    ticket.getPrice(),
+                    ticket.getDate(),
+                    ticket.getVisitor().getName(),
+                    ticket.getVisitor().getId()
+            );
         }
     }
 
@@ -77,7 +85,7 @@ public class TicketController {
      * @return Ticket
      */
     @PostMapping("")
-    public List<Ticket> createTickets(@RequestBody Map<String, Map<String, String>> ticketsData) {
+    public List<ApiTicket> createTickets(@RequestBody Map<String, Map<String, String>> ticketsData) {
         List<Ticket> tickets = new ArrayList<>();
         List<Visitor> newVisitors = new ArrayList<>();
 
@@ -108,7 +116,16 @@ public class TicketController {
 
         monthlyTicketInfoService.updateTicketListInfo(tickets);
 
-        return tickets;
+        return tickets.stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
     }
 
     @GetMapping("/stats")
