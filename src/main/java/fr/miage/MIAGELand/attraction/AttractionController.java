@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.attraction;
 
+import fr.miage.MIAGELand.api.ApiAttraction;
 import fr.miage.MIAGELand.api.stats.ApiStatsAttraction;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
@@ -26,17 +27,24 @@ public class AttractionController {
      * @return Attraction
      */
     @GetMapping("/{id}")
-    public Attraction getAttraction(@PathVariable Long id) throws AttractionNotFoundException {
-        return attractionRepository.findById(id).orElseThrow(() -> new AttractionNotFoundException(id));
+    public ApiAttraction getAttraction(@PathVariable Long id) {
+        Attraction attraction = attractionRepository.findById(id).orElseThrow();
+        return new ApiAttraction(attraction.getId(), attraction.getName(), attraction.isOpened());
     }
 
     @GetMapping("")
-    public List<Attraction> getAllAttractions() {
-        return attractionRepository.findAll();
+    public List<ApiAttraction> getAllAttractions() {
+        return attractionRepository.findAll().stream().map(
+                attraction -> new ApiAttraction(
+                        attraction.getId(),
+                        attraction.getName(),
+                        attraction.isOpened()
+                )
+        ).toList();
     }
 
     @PostMapping()
-    public List<Attraction> createAttraction(@RequestBody Map<String, Map<String, String>> body,
+    public List<ApiAttraction> createAttraction(@RequestBody Map<String, Map<String, String>> body,
                                              @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isAdminOrManager(authorizationHeader)) {
             throw new NotAllowedException();
@@ -50,7 +58,13 @@ public class AttractionController {
             );
             attractions.add(attraction);
         }
-        return attractionRepository.saveAll(attractions);
+        return attractionRepository.saveAll(attractions).stream().map(
+                attraction -> new ApiAttraction(
+                        attraction.getId(),
+                        attraction.getName(),
+                        attraction.isOpened()
+                )
+        ).toList();
     }
 
     @DeleteMapping("/{id}")
@@ -63,17 +77,18 @@ public class AttractionController {
     }
 
     @PatchMapping("/{id}")
-    public Attraction updateAttraction(@PathVariable Long id, @RequestBody Map<String, String> body, @RequestHeader("Authorization") String authorizationHeader) throws AttractionNotFoundException, AttractionStateException, NotAllowedException {
+    public ApiAttraction updateAttraction(@PathVariable Long id, @RequestBody Map<String, String> body, @RequestHeader("Authorization")
+    String authorizationHeader) throws AttractionStateException, NotAllowedException {
         if (!securityService.isAdminOrManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
-        Attraction attraction = attractionRepository.findById(id).orElseThrow(() -> new AttractionNotFoundException(id));
+        Attraction attraction = attractionRepository.findById(id).orElseThrow();
         switch (body.get("opened")) {
             case "true" -> attractionService.updateState(attraction, true);
             case "false" -> attractionService.updateState(attraction, false);
             default -> throw new AttractionStateException("Invalid state.");
         }
-        return attractionRepository.save(attraction);
+        return new ApiAttraction(attraction.getId(), attraction.getName(), attraction.isOpened());
     }
 
     @GetMapping("/stats")

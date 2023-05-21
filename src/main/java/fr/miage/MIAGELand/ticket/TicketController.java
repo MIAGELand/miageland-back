@@ -33,8 +33,16 @@ public class TicketController {
      * @return Ticket
      */
     @GetMapping("/{id}")
-    public Ticket getTicket(@PathVariable Long id) {
-        return ticketRepository.findById(id).orElseThrow();
+    public ApiTicket getTicket(@PathVariable Long id) {
+        Ticket ticket = ticketRepository.findById(id).orElseThrow();
+        return new ApiTicket(
+                ticket.getId(),
+                ticket.getState(),
+                ticket.getPrice(),
+                ticket.getDate(),
+                ticket.getVisitor().getName(),
+                ticket.getVisitor().getId()
+        );
     }
 
     @GetMapping("/all")

@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.employee;
 
+import fr.miage.MIAGELand.api.ApiEmployee;
 import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
@@ -26,17 +27,31 @@ public class EmployeeController {
      * @return Employee
      */
     @GetMapping("/{email}")
-    public Employee getEmployee(@PathVariable String email) {
-        if (employeeRepository.findAll().isEmpty()) {
-            Employee employee = new Employee(
+    public ApiEmployee getEmployee(@PathVariable String email) {
+        Employee employee = employeeRepository.findByEmail(email);
+        if (employee == null && employeeRepository.findAll().isEmpty()) {
+            Employee newEmployee = new Employee(
                    "Admin",
                     "MiageLand",
                     "admin",
                     EmployeeRole.MANAGER
             );
-            employeeRepository.save(employee);
+            employeeRepository.save(newEmployee);
+            return new ApiEmployee(
+                    newEmployee.getId(),
+                    newEmployee.getName(),
+                    newEmployee.getSurname(),
+                    newEmployee.getEmail(),
+                    newEmployee.getRole()
+            );
         }
-        return employeeRepository.findByEmail(email);
+        return new ApiEmployee(
+                employee.getId(),
+                employee.getName(),
+                employee.getSurname(),
+                employee.getEmail(),
+                employee.getRole()
+        );
     }
 
     /**
@@ -45,7 +60,7 @@ public class EmployeeController {
      * @return Employee
      */
     @PostMapping()
-    public List<Employee> createEmployee(@RequestBody Map<String, Map<String, String>> body,
+    public List<ApiEmployee> createEmployee(@RequestBody Map<String, Map<String, String>> body,
                                          @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();
@@ -61,12 +76,28 @@ public class EmployeeController {
             );
             employees.add(employee);
         }
-        return employeeRepository.saveAll(employees);
+        return employeeRepository.saveAll(employees).stream().map(
+                employee -> new ApiEmployee(
+                        employee.getId(),
+                        employee.getName(),
+                        employee.getSurname(),
+                        employee.getEmail(),
+                        employee.getRole()
+                )
+        ).toList();
     }
 
     @GetMapping("")
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<ApiEmployee> getAllEmployees() {
+        return employeeRepository.findAll().stream().map(
+                employee -> new ApiEmployee(
+                        employee.getId(),
+                        employee.getName(),
+                        employee.getSurname(),
+                        employee.getEmail(),
+                        employee.getRole()
+                )
+        ).toList();
     }
 
     @DeleteMapping("/{id}")
@@ -79,7 +110,7 @@ public class EmployeeController {
     }
 
     @PatchMapping("/{id}")
-    public Employee updateEmployee(@PathVariable Long id,
+    public ApiEmployee updateEmployee(@PathVariable Long id,
                                    @RequestBody Map<String, String> body,
                                    @RequestHeader("Authorization") String authorizationHeader) throws EmployeeRoleNotValidException, NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
@@ -92,7 +123,13 @@ public class EmployeeController {
             case CLASSIC -> employeeService.downgradeEmployeeRole(employee);
             default -> throw new EmployeeRoleNotValidException("Employee role is not valid.");
         }
-        return employeeRepository.save(employee);
+        return new ApiEmployee(
+                employee.getId(),
+                employee.getName(),
+                employee.getSurname(),
+                employee.getEmail(),
+                employee.getRole()
+        );
     }
 
     @GetMapping("/stats")
