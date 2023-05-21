@@ -81,6 +81,7 @@ public class TicketController {
 
     /**
      * Create the tickets in database
+     * TODO : check if gauge is not exceeded
      * @param body
      * @return Ticket
      */
@@ -93,6 +94,7 @@ public class TicketController {
             String name = ticketData.get("name");
             String surname = ticketData.get("surname");
             LocalDate date = DateConverter.convertLocalDate(ticketData.get("date"));
+            // TODO : check if date for ticket is valid = not in the past + gauge not exceeded
             float price = Float.parseFloat(ticketData.get("price"));
 
             Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
