@@ -17,4 +17,7 @@ public interface MonthlyTicketInfoRepository extends JpaRepository<MonthlyTicket
 
     @Query("SELECT SUM(m.ticketCancelledCount) FROM MonthlyTicketInfo m")
     long getAllCancelledTickets();
+
+    @Query("SELECT SUM(m.ticketReservedCount) FROM MonthlyTicketInfo m")
+    long getAllReservedTickets();
 }
