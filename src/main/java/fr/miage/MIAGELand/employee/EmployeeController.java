@@ -27,7 +27,7 @@ public class EmployeeController {
      * @return Employee
      */
     @GetMapping("/{email}")
-    public ApiEmployee getEmployee(@PathVariable String email) {
+    public ApiEmployee getEmployee(@PathVariable String email) throws Exception {
         Employee employee = employeeRepository.findByEmail(email);
         if (employee == null && employeeRepository.findAll().isEmpty()) {
             Employee newEmployee = new Employee(
@@ -45,6 +45,11 @@ public class EmployeeController {
                     newEmployee.getRole()
             );
         }
+
+        if (employee == null) {
+            throw new Exception("Employee not found");
+        }
+
         return new ApiEmployee(
                 employee.getId(),
                 employee.getName(),
