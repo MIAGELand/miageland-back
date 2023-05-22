@@ -1,6 +1,6 @@
 package fr.miage.MIAGELand.ticket;
 
-import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
+import fr.miage.MIAGELand.stats.StatTicketInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,7 @@ import java.util.List;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final MonthlyTicketInfoService monthlyTicketInfoService;
+    private final StatTicketInfoService statTicketInfoService;
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     public void payTicket(Ticket ticket) throws TicketNotValidException {
@@ -28,7 +28,7 @@ public class TicketService {
         switch (previousState) {
             case RESERVED -> {
                 ticket.setState(TicketState.PAID);
-                monthlyTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                statTicketInfoService.updateTicketInfo(ticket,false, previousState);
             }
             case PAID -> throw new TicketNotValidException("Ticket already paid.");
             case USED -> throw new TicketNotValidException("Ticket already used.");
@@ -41,7 +41,7 @@ public class TicketService {
         switch (previousState) {
             case PAID -> {
                 ticket.setState(TicketState.USED);
-                monthlyTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                statTicketInfoService.updateTicketInfo(ticket,false, previousState);
             }
             case RESERVED -> throw new TicketNotValidException("Ticket not paid.");
             case USED -> throw new TicketNotValidException("Ticket already used.");
@@ -56,7 +56,7 @@ public class TicketService {
             switch (previousState) {
                 case PAID, RESERVED -> {
                     ticket.setState(TicketState.CANCELLED);
-                    monthlyTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                    statTicketInfoService.updateTicketInfo(ticket,false, previousState);
                 }
                 case USED -> throw new TicketNotValidException("Ticket already used.");
                 case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
