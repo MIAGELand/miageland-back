@@ -2,7 +2,9 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
+import fr.miage.MIAGELand.park.ParkRepository;
 import fr.miage.MIAGELand.stats.StatTicketInfoService;
+import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoService;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,8 @@ public class TicketController {
     private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
     private final StatTicketInfoService statTicketInfoService;
     private final DailyTicketInfoService dailyTicketInfoService;
+    private final DailyTicketInfoRepository dailyTicketInfoRepository;
+    private final ParkRepository parkRepository;
 
     /**
      * Get ticket by id
@@ -108,7 +113,19 @@ public class TicketController {
             String surname = ticketData.get("surname");
             String email = ticketData.get("email");
             LocalDate date = DateConverter.convertLocalDate(ticketData.get("date"));
-            // TODO : check if date for ticket is valid = not in the past + gauge not exceeded
+            if (date.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("Date is not valid");
+            }
+
+            long dailyTicketCount;
+            if (dailyTicketInfoRepository.findByDayMonthYear(date) != null) {
+                dailyTicketCount = dailyTicketInfoRepository.findByDayMonthYear(date).getTicketCount();
+                long currentGauge = parkRepository.findById(1L).get().getGauge();
+                if (dailyTicketCount + 1 > currentGauge) {
+                    throw new IllegalArgumentException("Gauge is exceeded");
+                }
+            }
+
             float price = Float.parseFloat(ticketData.get("price"));
 
             Visitor visitor = visitorRepository.findByEmail(email);

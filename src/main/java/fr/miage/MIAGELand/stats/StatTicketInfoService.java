@@ -1,5 +1,7 @@
 package fr.miage.MIAGELand.stats;
 
+import fr.miage.MIAGELand.park.Park;
+import fr.miage.MIAGELand.park.ParkRepository;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfo;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoData;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoRepository;
@@ -27,13 +29,20 @@ public class StatTicketInfoService {
 
     private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
     private final DailyTicketInfoRepository dailyTicketInfoRepository;
+    private final ParkRepository parkRepository;
 
+    /**
+     * Update ticket info on user action : buy, cancel, use
+     * @param ticket
+     * @param newTicket
+     * @param previousState
+     */
     public void updateTicketInfo(Ticket ticket, boolean newTicket, TicketState previousState) {
         LocalDate date = ticket.getDate();
         YearMonth monthYear = YearMonth.from(date);
         MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear.format(DateTimeFormatter.ofPattern("MM/yy")));
         MonthlyTicketInfo newMonthlyTicketInfo;
-        DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(date.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+        DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(date);
         DailyTicketInfo newDailyTicketInfo;
 
         if (monthlyTicketInfo == null) {
@@ -48,7 +57,7 @@ public class StatTicketInfoService {
 
         if (dailyTicketInfo == null) {
             newDailyTicketInfo = new DailyTicketInfo();
-            newDailyTicketInfo.setDayMonthYear(date.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+            newDailyTicketInfo.setDayMonthYear(date);
             setInitialData(ticket, newDailyTicketInfo);
             dailyTicketInfoRepository.save(newDailyTicketInfo);
         } else {
@@ -58,22 +67,21 @@ public class StatTicketInfoService {
     }
 
     /**
-     * Add ticket info on the creation of the tickets
+     * Add ticket info on the creation of the tickets = reservation
      * @param tickets
      */
     public void updateTicketListInfo(List<Ticket> tickets) {
         Map<String, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
-        Map<String, DailyTicketInfoData> dailyTicketInfoDataMap = new HashMap<>();
+        Map<LocalDate, DailyTicketInfoData> dailyTicketInfoDataMap = new HashMap<>();
         for (Ticket ticket : tickets) {
             LocalDate date = ticket.getDate();
             YearMonth monthYear = YearMonth.from(date);
             String monthYearStr = monthYear.format(DateTimeFormatter.ofPattern("MM/yy"));
-            String dayMonthYearStr = date.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
 
             MonthlyTicketInfoData monthlyTicketInfoData = monthlyTicketInfoDataMap.get(monthYearStr);
             MonthlyTicketInfoData newMonthlyTicketInfoData;
 
-            DailyTicketInfoData dailyTicketInfoData = dailyTicketInfoDataMap.get(dayMonthYearStr);
+            DailyTicketInfoData dailyTicketInfoData = dailyTicketInfoDataMap.get(date);
             DailyTicketInfoData newDailyTicketInfoData;
             if (monthlyTicketInfoData == null) {
                 newMonthlyTicketInfoData = new MonthlyTicketInfoData();
@@ -85,7 +93,7 @@ public class StatTicketInfoService {
 
             if (dailyTicketInfoData == null) {
                 newDailyTicketInfoData = new DailyTicketInfoData();
-                dailyTicketInfoDataMap.put(dayMonthYearStr, newDailyTicketInfoData);
+                dailyTicketInfoDataMap.put(date, newDailyTicketInfoData);
                 newDailyTicketInfoData.update(ticket);
             } else {
                 dailyTicketInfoData.update(ticket);
@@ -109,20 +117,28 @@ public class StatTicketInfoService {
             }
         }
 
-        for (Map.Entry<String, DailyTicketInfoData> entry : dailyTicketInfoDataMap.entrySet()) {
-            String dayMonthYearStr = entry.getKey();
+        // Get max ticket_count by day
+        Park park = parkRepository.findById(1L).get();
+        for (Map.Entry<LocalDate, DailyTicketInfoData> entry : dailyTicketInfoDataMap.entrySet()) {
+            LocalDate date = entry.getKey();
             DailyTicketInfoData dailyTicketInfoData = entry.getValue();
 
-            DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(dayMonthYearStr);
+            DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(date);
             DailyTicketInfo newDailyTicketInfo;
             if (dailyTicketInfo == null) {
                 newDailyTicketInfo = new DailyTicketInfo();
-                newDailyTicketInfo.setDayMonthYear(dayMonthYearStr);
+                newDailyTicketInfo.setDayMonthYear(date);
                 setInitialDataByMonthlyData(dailyTicketInfoData, newDailyTicketInfo);
                 dailyTicketInfoRepository.save(newDailyTicketInfo);
             } else {
                 dailyTicketInfo.updateData(dailyTicketInfoData);
                 dailyTicketInfoRepository.save(dailyTicketInfo);
+                long dailyTicketCount = dailyTicketInfo.getTicketCount();
+                if (dailyTicketInfoRepository.count() > 0) {
+                    long maxTicketCountByDay = dailyTicketInfoRepository.findMaxTicketCount();
+                    park.setMinTicketGauge(Math.max(maxTicketCountByDay, dailyTicketCount));
+                    parkRepository.save(park);
+                }
             }
         }
     }
