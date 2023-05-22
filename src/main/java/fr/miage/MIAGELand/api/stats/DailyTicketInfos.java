@@ -4,12 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @Getter
 @Setter
 public class DailyTicketInfos {
 
-    private String dayMonthYear;
+    private LocalDate dayMonthYear;
     private NumberStatsTicket numberStatsTicket;
     private double totalAmount;
     private double benefits;

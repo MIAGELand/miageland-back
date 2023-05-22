@@ -1,12 +1,13 @@
 package fr.miage.MIAGELand.stats.daily_ticket_info;
 
 import fr.miage.MIAGELand.stats.StatTicketInfo;
-import fr.miage.MIAGELand.stats.TicketInfoData;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDate;
 
 @Entity
 @Setter
@@ -15,7 +16,7 @@ import lombok.Setter;
 public class DailyTicketInfo extends StatTicketInfo {
 
     @Id
-    private String dayMonthYear;
+    private LocalDate dayMonthYear;
     private Long ticketCount;
     private Long ticketReservedCount;
     private Long ticketPaidCount;
