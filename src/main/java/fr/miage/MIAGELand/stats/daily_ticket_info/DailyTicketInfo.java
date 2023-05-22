@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.stats.daily_ticket_info;
 
+import fr.miage.MIAGELand.stats.StatTicketInfo;
 import fr.miage.MIAGELand.stats.TicketInfoData;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class DailyTicketInfo {
+public class DailyTicketInfo extends StatTicketInfo {
 
     @Id
     private String dayMonthYear;
