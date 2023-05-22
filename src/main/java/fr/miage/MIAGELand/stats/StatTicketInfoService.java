@@ -40,14 +40,14 @@ public class StatTicketInfoService {
     public void updateTicketInfo(Ticket ticket, boolean newTicket, TicketState previousState) {
         LocalDate date = ticket.getDate();
         YearMonth monthYear = YearMonth.from(date);
-        MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear.format(DateTimeFormatter.ofPattern("MM/yy")));
+        MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear);
         MonthlyTicketInfo newMonthlyTicketInfo;
         DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(date);
         DailyTicketInfo newDailyTicketInfo;
 
         if (monthlyTicketInfo == null) {
             newMonthlyTicketInfo = new MonthlyTicketInfo();
-            newMonthlyTicketInfo.setMonthYear(monthYear.format(DateTimeFormatter.ofPattern("MM/yy")));
+            newMonthlyTicketInfo.setMonthYear(monthYear);
             setInitialData(ticket, newMonthlyTicketInfo);
             monthlyTicketInfoRepository.save(newMonthlyTicketInfo);
         } else {
@@ -71,21 +71,20 @@ public class StatTicketInfoService {
      * @param tickets
      */
     public void updateTicketListInfo(List<Ticket> tickets) {
-        Map<String, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
+        Map<YearMonth, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
         Map<LocalDate, DailyTicketInfoData> dailyTicketInfoDataMap = new HashMap<>();
         for (Ticket ticket : tickets) {
             LocalDate date = ticket.getDate();
             YearMonth monthYear = YearMonth.from(date);
-            String monthYearStr = monthYear.format(DateTimeFormatter.ofPattern("MM/yy"));
 
-            MonthlyTicketInfoData monthlyTicketInfoData = monthlyTicketInfoDataMap.get(monthYearStr);
+            MonthlyTicketInfoData monthlyTicketInfoData = monthlyTicketInfoDataMap.get(monthYear);
             MonthlyTicketInfoData newMonthlyTicketInfoData;
 
             DailyTicketInfoData dailyTicketInfoData = dailyTicketInfoDataMap.get(date);
             DailyTicketInfoData newDailyTicketInfoData;
             if (monthlyTicketInfoData == null) {
                 newMonthlyTicketInfoData = new MonthlyTicketInfoData();
-                monthlyTicketInfoDataMap.put(monthYearStr, newMonthlyTicketInfoData);
+                monthlyTicketInfoDataMap.put(monthYear, newMonthlyTicketInfoData);
                 newMonthlyTicketInfoData.update(ticket);
             } else {
                 monthlyTicketInfoData.update(ticket);
@@ -100,15 +99,15 @@ public class StatTicketInfoService {
             }
         }
 
-        for (Map.Entry<String, MonthlyTicketInfoData> entry : monthlyTicketInfoDataMap.entrySet()) {
-            String monthYearStr = entry.getKey();
+        for (Map.Entry<YearMonth, MonthlyTicketInfoData> entry : monthlyTicketInfoDataMap.entrySet()) {
+            YearMonth monthYear = entry.getKey();
             MonthlyTicketInfoData monthlyTicketInfoData = entry.getValue();
 
-            MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYearStr);
+            MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear);
             MonthlyTicketInfo newMonthlyTicketInfo;
             if (monthlyTicketInfo == null) {
                 newMonthlyTicketInfo = new MonthlyTicketInfo();
-                newMonthlyTicketInfo.setMonthYear(monthYearStr);
+                newMonthlyTicketInfo.setMonthYear(monthYear);
                 setInitialDataByMonthlyData(monthlyTicketInfoData, newMonthlyTicketInfo);
                 monthlyTicketInfoRepository.save(newMonthlyTicketInfo);
             } else {

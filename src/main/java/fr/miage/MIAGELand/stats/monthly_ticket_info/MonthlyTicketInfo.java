@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+
 @Entity
 @Setter
 @Getter
@@ -14,7 +17,7 @@ import lombok.Setter;
 public class MonthlyTicketInfo extends StatTicketInfo {
 
     @Id
-    private String monthYear;
+    private YearMonth monthYear;
     private Long ticketCount;
     private Long ticketReservedCount;
     private Long ticketPaidCount;
