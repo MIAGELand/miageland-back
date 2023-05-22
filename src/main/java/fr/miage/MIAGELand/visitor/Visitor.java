@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-@Table(uniqueConstraints = { @UniqueConstraint(name = "UniqueNameAndSurname", columnNames = { "name", "surname" }) })
+@Table(uniqueConstraints = { @UniqueConstraint(name = "UniqueEmail", columnNames = { "email" }) })
 public class Visitor {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "visitor_generator")
@@ -23,11 +23,6 @@ public class Visitor {
     private String email;
     @OneToMany(targetEntity = Ticket.class, mappedBy = "visitor")
     private List<Ticket> ticketList;
-
-    public Visitor(String name, String surname) {
-        this.name = name;
-        this.surname = surname;
-    }
 
     public Visitor(String name, String surname, String email) {
         this.name = name;

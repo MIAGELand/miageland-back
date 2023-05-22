@@ -16,9 +16,9 @@ public class VisitorController {
 
     private final VisitorRepository visitorRepository;
 
-    @GetMapping()
-    public ApiVisitor getVisitor(@RequestParam String name, @RequestParam String surname) {
-        Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
+    @GetMapping("/{email}")
+    public ApiVisitor getVisitor(@PathVariable String email) {
+        Visitor visitor = visitorRepository.findByEmail(email);
         if (visitor == null) {
             throw new IllegalArgumentException("Visitor not found");
         } else {
@@ -26,6 +26,7 @@ public class VisitorController {
                     visitor.getId(),
                     visitor.getName(),
                     visitor.getSurname(),
+                    visitor.getEmail(),
                     visitor.getTicketList().stream().map(
                             ticket -> new ApiTicket(
                                     ticket.getId(),
@@ -55,7 +56,8 @@ public class VisitorController {
             return new ApiVisitor(
                     visitor.getId(),
                     visitor.getName(),
-                    visitor.getSurname()
+                    visitor.getSurname(),
+                    visitor.getEmail()
             );
         }
     }

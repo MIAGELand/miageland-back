@@ -13,11 +13,13 @@ public class ApiVisitor {
     private Long id;
     private String name;
     private String surname;
+    private String email;
     private List<ApiTicket> ticketList;
 
-    public ApiVisitor(Long id, String name, String surname) {
+    public ApiVisitor(Long id, String name, String surname, String email) {
         this.id = id;
         this.name = name;
         this.surname = surname;
+        this.email = email;
     }
 }

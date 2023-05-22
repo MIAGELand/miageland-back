@@ -102,14 +102,15 @@ public class TicketController {
         for (Map<String, String> ticketData : ticketsData.values()) {
             String name = ticketData.get("name");
             String surname = ticketData.get("surname");
+            String email = ticketData.get("email");
             LocalDate date = DateConverter.convertLocalDate(ticketData.get("date"));
             // TODO : check if date for ticket is valid = not in the past + gauge not exceeded
             float price = Float.parseFloat(ticketData.get("price"));
 
-            Visitor visitor = visitorRepository.findByNameAndSurname(name, surname);
+            Visitor visitor = visitorRepository.findByEmail(email);
             Visitor newVisitor;
             if (visitor == null) {
-                newVisitor = new Visitor(name, surname);
+                newVisitor = new Visitor(name, surname, email);
                 newVisitors.add(newVisitor);
                 Ticket ticket = new Ticket(newVisitor, date, price, TicketState.RESERVED);
                 tickets.add(ticket);
