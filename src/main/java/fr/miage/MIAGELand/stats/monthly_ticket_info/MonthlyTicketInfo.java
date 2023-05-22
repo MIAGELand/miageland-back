@@ -1,5 +1,6 @@
 package fr.miage.MIAGELand.stats.monthly_ticket_info;
 
+import fr.miage.MIAGELand.stats.StatTicketInfo;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class MonthlyTicketInfo {
+public class MonthlyTicketInfo extends StatTicketInfo {
 
     @Id
     private String monthYear;
