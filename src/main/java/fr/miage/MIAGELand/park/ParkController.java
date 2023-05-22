@@ -36,7 +36,7 @@ public class ParkController {
             throw new IllegalArgumentException("Gauge is required");
         } else {
             parkService.setGauge(Long.parseLong(body.get("gauge")));
-            Park park = parkRepository.findAll().get(0);
+            Park park = parkRepository.findById(1L).orElseThrow();
             return new ApiPark(park.getId(), park.getMinTicketGauge(), park.getGauge(), park.getModifiedAt());
         }
     }

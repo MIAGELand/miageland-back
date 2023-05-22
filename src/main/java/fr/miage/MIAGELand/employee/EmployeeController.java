@@ -2,6 +2,8 @@ package fr.miage.MIAGELand.employee;
 
 import fr.miage.MIAGELand.api.ApiEmployee;
 import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
+import fr.miage.MIAGELand.park.Park;
+import fr.miage.MIAGELand.park.ParkRepository;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import jakarta.transaction.Transactional;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
+    private final ParkRepository parkRepository;
     private final EmployeeService employeeService;
     private final SecurityService securityService;
 
@@ -36,7 +39,14 @@ public class EmployeeController {
                     "admin",
                     EmployeeRole.MANAGER
             );
+            Park park = new Park(
+                    1L,
+                    1L,
+                    10L,
+                    java.time.LocalDateTime.now()
+            );
             employeeRepository.save(newEmployee);
+            parkRepository.save(park);
             return new ApiEmployee(
                     newEmployee.getId(),
                     newEmployee.getName(),
