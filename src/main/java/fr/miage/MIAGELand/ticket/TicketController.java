@@ -2,6 +2,8 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
+import fr.miage.MIAGELand.stats.StatTicketInfoService;
+import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoService;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
@@ -26,6 +28,8 @@ public class TicketController {
     private final MonthlyTicketInfoService monthlyTicketInfoService;
     private final VisitorRepository visitorRepository;
     private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
+    private final StatTicketInfoService statTicketInfoService;
+    private final DailyTicketInfoService dailyTicketInfoService;
 
     /**
      * Get ticket by id
@@ -126,7 +130,7 @@ public class TicketController {
 
         ticketRepository.saveAll(tickets);
 
-        monthlyTicketInfoService.updateTicketListInfo(tickets);
+        statTicketInfoService.updateTicketListInfo(tickets);
 
         return tickets.stream().map(
                 ticket -> new ApiTicket(
@@ -144,7 +148,8 @@ public class TicketController {
     public ApiStatsTicket getStats() {
         return new ApiStatsTicket(
                 monthlyTicketInfoService.getGlobalStatsTicket(),
-                monthlyTicketInfoService.getMonthlyTicketInfos()
+                monthlyTicketInfoService.getMonthlyTicketInfos(),
+                dailyTicketInfoService.getDailyTicketInfos()
         );
     }
 
