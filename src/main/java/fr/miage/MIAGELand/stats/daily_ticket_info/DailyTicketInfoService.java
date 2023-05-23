@@ -5,6 +5,7 @@ import fr.miage.MIAGELand.api.stats.NumberStatsTicket;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,28 @@ public class DailyTicketInfoService {
             return null;
         }
         List<DailyTicketInfo> dailyTicketInfos = dailyTicketInfoRepository.findAll();
+
+        return dailyTicketInfos.stream()
+                .map(dailyTicketInfo -> new DailyTicketInfos(
+                        dailyTicketInfo.getDayMonthYear(),
+                        new NumberStatsTicket(
+                                dailyTicketInfo.getTicketCount(),
+                                dailyTicketInfo.getTicketReservedCount(),
+                                dailyTicketInfo.getTicketPaidCount(),
+                                dailyTicketInfo.getTicketUsedCount(),
+                                dailyTicketInfo.getTicketCancelledCount()
+                        ),
+                        dailyTicketInfo.getTotalPrice(),
+                        dailyTicketInfo.getBenefits()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<DailyTicketInfos> getDailyTicketInfos(LocalDate start, LocalDate end) {
+        if (dailyTicketInfoRepository.count() == 0) {
+            return null;
+        }
+        List<DailyTicketInfo> dailyTicketInfos = dailyTicketInfoRepository.findAllByDayMonthYearBetween(start, end);
 
         return dailyTicketInfos.stream()
                 .map(dailyTicketInfo -> new DailyTicketInfos(

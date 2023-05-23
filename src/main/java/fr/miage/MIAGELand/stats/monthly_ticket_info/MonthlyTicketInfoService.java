@@ -5,6 +5,8 @@ import fr.miage.MIAGELand.api.stats.NumberStatsTicket;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +34,25 @@ public class MonthlyTicketInfoService {
     }
 
     /**
+     * Get the global stats ticket
+     * @return
+     */
+    public NumberStatsTicket getGlobalStatsTicket(LocalDate start, LocalDate end) {
+        if (monthlyTicketInfoRepository.count() == 0) {
+            return new NumberStatsTicket(0L, 0L, 0L, 0L, 0L);
+        }
+        YearMonth startYearMonth = YearMonth.from(start);
+        YearMonth endYearMonth = YearMonth.from(end);
+        return new NumberStatsTicket(
+                monthlyTicketInfoRepository.countAllByMonthYearBetween(startYearMonth, endYearMonth),
+                monthlyTicketInfoRepository.countAllReservedByMonthYearBetween(startYearMonth, endYearMonth),
+                monthlyTicketInfoRepository.countAllPaidByMonthYearBetween(startYearMonth, endYearMonth),
+                monthlyTicketInfoRepository.countAllUsedByMonthYearBetween(startYearMonth, endYearMonth),
+                monthlyTicketInfoRepository.countAllCancelledByMonthYearBetween(startYearMonth, endYearMonth)
+        );
+    }
+
+    /**
      * Get the monthly stats ticket
      * @return
      */
@@ -40,6 +61,34 @@ public class MonthlyTicketInfoService {
             return new ArrayList<>();
         }
         List<MonthlyTicketInfo> monthlyTicketInfos = monthlyTicketInfoRepository.findAll();
+
+        return monthlyTicketInfos.stream()
+                .map(monthlyTicketInfo -> new MonthlyTicketInfos(
+                        monthlyTicketInfo.getMonthYear(),
+                        new NumberStatsTicket(
+                                monthlyTicketInfo.getTicketCount(),
+                                monthlyTicketInfo.getTicketReservedCount(),
+                                monthlyTicketInfo.getTicketPaidCount(),
+                                monthlyTicketInfo.getTicketUsedCount(),
+                                monthlyTicketInfo.getTicketCancelledCount()
+                        ),
+                        monthlyTicketInfo.getTotalPrice(),
+                        monthlyTicketInfo.getBenefits()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the monthly stats ticket
+     * @return
+     */
+    public List<MonthlyTicketInfos> getMonthlyTicketInfos(LocalDate start, LocalDate end) {
+        if (monthlyTicketInfoRepository.count() == 0) {
+            return new ArrayList<>();
+        }
+        YearMonth startYearMonth = YearMonth.from(start);
+        YearMonth endYearMonth = YearMonth.from(end);
+        List<MonthlyTicketInfo> monthlyTicketInfos = monthlyTicketInfoRepository.findAllByMonthYearBetween(startYearMonth, endYearMonth);
 
         return monthlyTicketInfos.stream()
                 .map(monthlyTicketInfo -> new MonthlyTicketInfos(
