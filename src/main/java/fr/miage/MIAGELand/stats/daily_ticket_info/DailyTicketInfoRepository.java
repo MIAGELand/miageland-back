@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface DailyTicketInfoRepository extends JpaRepository<DailyTicketInfo, String> {
@@ -29,4 +30,6 @@ public interface DailyTicketInfoRepository extends JpaRepository<DailyTicketInfo
     // Escape the :: characters from below
     @Query("SELECT MAX(d.ticketCount) FROM DailyTicketInfo d WHERE d.dayMonthYear > CURRENT_DATE ")
     long findMaxTicketCount();
+
+    List<DailyTicketInfo> findAllByDayMonthYearBetween(LocalDate start, LocalDate end);
 }
