@@ -162,11 +162,24 @@ public class TicketController {
     }
 
     @GetMapping("/stats")
-    public ApiStatsTicket getStats() {
+    public ApiStatsTicket getStats(
+            @RequestParam(required = false) String start,
+            @RequestParam(required = false) String end) {
+        // Check if there are no request params
+        if (start == null && end == null) {
+            return new ApiStatsTicket(
+                    monthlyTicketInfoService.getGlobalStatsTicket(),
+                    monthlyTicketInfoService.getMonthlyTicketInfos(),
+                    dailyTicketInfoService.getDailyTicketInfos()
+            );
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(start, formatter);
+        LocalDate endDate = LocalDate.parse(end, formatter);
         return new ApiStatsTicket(
-                monthlyTicketInfoService.getGlobalStatsTicket(),
-                monthlyTicketInfoService.getMonthlyTicketInfos(),
-                dailyTicketInfoService.getDailyTicketInfos()
+                monthlyTicketInfoService.getGlobalStatsTicket(startDate, endDate),
+                monthlyTicketInfoService.getMonthlyTicketInfos(startDate, endDate),
+                dailyTicketInfoService.getDailyTicketInfos(startDate, endDate)
         );
     }
 
