@@ -80,6 +80,11 @@ public class VisitorController {
         ).toList();
     }
 
+    /**
+     * Delete visitor by id
+     * TODO : check state of tickets before deleting
+     * @param id
+     */
     @DeleteMapping("/{id}")
     public void deleteVisitor(@PathVariable Long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
