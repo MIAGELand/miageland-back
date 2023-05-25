@@ -41,7 +41,7 @@ public class EmployeeController {
             );
             Park park = new Park(
                     1L,
-                    1L,
+                    10L,
                     10L,
                     java.time.LocalDateTime.now()
             );
@@ -103,7 +103,10 @@ public class EmployeeController {
     }
 
     @GetMapping("")
-    public List<ApiEmployee> getAllEmployees() {
+    public List<ApiEmployee> getAllEmployees(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         return employeeRepository.findAll().stream().map(
                 employee -> new ApiEmployee(
                         employee.getId(),
@@ -148,7 +151,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/stats")
-    public ApiStatsEmployee getEmployeeStats() {
+    public ApiStatsEmployee getEmployeeStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         return new ApiStatsEmployee(
                 employeeRepository.count(),
                 employeeRepository.countByRole(EmployeeRole.ADMIN),
