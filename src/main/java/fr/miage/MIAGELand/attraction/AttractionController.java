@@ -92,7 +92,10 @@ public class AttractionController {
     }
 
     @GetMapping("/stats")
-    public ApiStatsAttraction getAttractionStats() {
+    public ApiStatsAttraction getAttractionStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isAdminOrManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         return new ApiStatsAttraction(
                 attractionRepository.count(),
                 attractionRepository.countByOpened(true),

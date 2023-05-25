@@ -19,7 +19,7 @@ public class ParkController {
     @GetMapping
     public ApiPark getPark() {
         if (parkRepository.count() == 0) {
-            Park initPark = new Park(1L, 0L, 10L, java.time.LocalDateTime.now());
+            Park initPark = new Park(1L, 10L, 10L, java.time.LocalDateTime.now());
             parkRepository.save(initPark);
         }
         Park park = parkRepository.findAll().get(0);
@@ -27,7 +27,7 @@ public class ParkController {
     }
     @PatchMapping("/gauge")
     public ApiPark updateGauge(@RequestBody Map<String, String> body,
-                            @RequestHeader("Authorization") String authorizationHeader)
+                               @RequestHeader("Authorization") String authorizationHeader)
             throws IllegalGaugeException, NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();

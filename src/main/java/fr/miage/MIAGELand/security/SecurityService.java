@@ -11,6 +11,16 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
     private final EmployeeRepository employeeRepository;
 
+    public boolean isEmployee(String authorizationHeader) throws NotAllowedException {
+        String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
+
+        Employee employee = employeeRepository.findByEmail(email);
+        if (employee == null) {
+            throw new NotAllowedException("You are not allowed to do this.");
+        }
+        return true;
+    }
+
     public boolean isAdminOrManager(String authorizationHeader) throws NotAllowedException {
         String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
 

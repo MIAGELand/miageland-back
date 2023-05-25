@@ -3,10 +3,11 @@ package fr.miage.MIAGELand.ticket;
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
 import fr.miage.MIAGELand.park.ParkRepository;
+import fr.miage.MIAGELand.security.NotAllowedException;
+import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.stats.StatTicketInfoService;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoService;
-import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
 import fr.miage.MIAGELand.visitor.Visitor;
@@ -30,11 +31,11 @@ public class TicketController {
     private final TicketService ticketService;
     private final MonthlyTicketInfoService monthlyTicketInfoService;
     private final VisitorRepository visitorRepository;
-    private final MonthlyTicketInfoRepository monthlyTicketInfoRepository;
     private final StatTicketInfoService statTicketInfoService;
     private final DailyTicketInfoService dailyTicketInfoService;
     private final DailyTicketInfoRepository dailyTicketInfoRepository;
     private final ParkRepository parkRepository;
+    private final SecurityService securityService;
 
     /**
      * Get ticket by id
@@ -42,7 +43,10 @@ public class TicketController {
      * @return Ticket
      */
     @GetMapping("/{id}")
-    public ApiTicket getTicket(@PathVariable Long id) {
+    public ApiTicket getTicket(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         Ticket ticket = ticketRepository.findById(id).orElseThrow();
         return new ApiTicket(
                 ticket.getId(),
@@ -55,7 +59,10 @@ public class TicketController {
     }
 
     @GetMapping("/all")
-    public List<ApiTicket> getAllTickets() {
+    public List<ApiTicket> getAllTickets(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         return ticketRepository.findAll().stream().map(
                 ticket -> new ApiTicket(
                         ticket.getId(),
@@ -74,14 +81,15 @@ public class TicketController {
      * @return Ticket
      */
     @PatchMapping("/{id}")
-    public ApiTicket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body) throws TicketNotValidException {
+    public ApiTicket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body,
+                                  @RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws TicketNotValidException, NotAllowedException {
         if (!body.containsKey("state")) {
             throw new IllegalArgumentException("State is required");
         } else {
             Ticket ticket = ticketRepository.findById(id).orElseThrow();
             switch (Enum.valueOf(TicketState.class, body.get("state"))) {
                 case PAID -> ticketService.payTicket(ticket);
-                case USED -> ticketService.validateTicket(ticket);
+                case USED -> ticketService.validateTicket(ticket, authorizationHeader);
                 case CANCELLED -> ticketService.cancelTicket(ticket);
                 default -> throw new IllegalArgumentException("State is not valid");
             }
@@ -99,7 +107,6 @@ public class TicketController {
 
     /**
      * Create the tickets in database
-     * TODO : check if gauge is not exceeded
      * @param body
      * @return Ticket
      */
@@ -183,16 +190,14 @@ public class TicketController {
         );
     }
 
-    @DeleteMapping("")
-    public void deleteAllTickets() {
-        monthlyTicketInfoRepository.deleteAll();
-        ticketRepository.deleteAll();
-    }
-
     @GetMapping("")
     public List<ApiTicket> getTickets(
-            @RequestParam(name="page", defaultValue = "0") int page
-    ) {
+            @RequestParam(name="page", defaultValue = "0") int page,
+            @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException
+    {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
         Page<Ticket> tickets = ticketService.getTickets(page);
         return tickets.stream().map(
                 ticket -> new ApiTicket(

@@ -1,5 +1,7 @@
 package fr.miage.MIAGELand.ticket;
 
+import fr.miage.MIAGELand.security.NotAllowedException;
+import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.stats.StatTicketInfoService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final StatTicketInfoService statTicketInfoService;
+    private final SecurityService securityService;
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     public void payTicket(Ticket ticket) throws TicketNotValidException {
@@ -36,7 +39,10 @@ public class TicketService {
         }
     }
 
-    public void validateTicket(Ticket ticket) throws TicketNotValidException {
+    public void validateTicket(Ticket ticket, String authorization) throws TicketNotValidException, NotAllowedException {
+        if (!securityService.isEmployee(authorization)) {
+            throw new NotAllowedException();
+        }
         TicketState previousState = ticket.getState();
         switch (previousState) {
             case PAID -> {
