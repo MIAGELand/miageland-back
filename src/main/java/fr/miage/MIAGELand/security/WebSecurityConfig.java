@@ -39,7 +39,7 @@ public class WebSecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
                     registry.addMapping("/api/**")
-                            .allowedOrigins("http://127.0.0.1:5173")
+                            .allowedOrigins("http://localhost:5173", "http://127.0.0.1:5173")
                             .allowedMethods("*")
                             .allowCredentials(true); // Allow credentials (cookies) in the CORS response
                 }
