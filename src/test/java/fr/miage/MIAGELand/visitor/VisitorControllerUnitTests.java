@@ -29,6 +29,9 @@ public class VisitorControllerUnitTests {
     @MockBean
     private VisitorRepository visitorRepository;
 
+    @MockBean
+    private VisitorService visitorService;
+
     @WithMockUser(value = "spring")
     @Test
     public void getVisitor() throws Exception {
