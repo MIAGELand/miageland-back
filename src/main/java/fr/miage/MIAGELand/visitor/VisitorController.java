@@ -2,11 +2,20 @@ package fr.miage.MIAGELand.visitor;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.ApiVisitor;
+import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
+import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
+import fr.miage.MIAGELand.security.NotAllowedException;
+import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -16,7 +25,26 @@ public class VisitorController {
 
     private final VisitorRepository visitorRepository;
     private final VisitorService visitorService;
+    private final SecurityService securityService;
 
+    @GetMapping("")
+    public List<ApiVisitor> getVisitors(
+            @RequestParam(name="page", defaultValue = "0") int page,
+            @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException
+    {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+        Page<Visitor> visitors = visitorService.getVisitors(page);
+        return visitors.stream().map(
+                visitor -> new ApiVisitor(
+                        visitor.getId(),
+                        visitor.getName(),
+                        visitor.getSurname(),
+                        visitor.getEmail()
+                )
+        ).toList();
+    }
 
     @GetMapping("/{email}")
     public ApiVisitor getVisitor(@PathVariable String email) {
@@ -48,23 +76,31 @@ public class VisitorController {
         }
     }
     @PostMapping
-    public ApiVisitor createVisitor(@RequestBody Visitor body) {
-        if (!visitorService.isVisitorFieldValid(body)) {
-            throw new IllegalArgumentException("Missing parameters");
-        } else {
-            Visitor visitor = new Visitor(
-                    body.getName(),
-                    body.getSurname(),
-                    body.getEmail()
-            );
-            visitorRepository.save(visitor);
-            return new ApiVisitor(
-                    visitor.getId(),
-                    visitor.getName(),
-                    visitor.getSurname(),
-                    visitor.getEmail()
-            );
+    public List<ApiVisitor> createVisitor(@RequestBody Map<String, Visitor> body) {
+        System.out.println(body);
+        List<Visitor> visitors = new ArrayList<>();
+        for (Visitor visitor : body.values()) {
+            if (!visitorService.isVisitorFieldValid(visitor)) {
+                throw new IllegalArgumentException("Missing parameters");
+            } else {
+                Visitor current = new Visitor(
+                        visitor.getName(),
+                        visitor.getSurname(),
+                        visitor.getEmail()
+                );
+                visitors.add(current);
+            }
         }
+        visitorRepository.saveAll(visitors);
+        return visitors.stream().map(
+                visitor -> new ApiVisitor(
+                        visitor.getId(),
+                        visitor.getName(),
+                        visitor.getSurname(),
+                        visitor.getEmail(),
+                        null
+                )
+        ).toList();
     }
 
     @GetMapping("/{id}/tickets")
@@ -83,6 +119,14 @@ public class VisitorController {
                         ticket.getVisitor().getId()
                 )
         ).toList();
+    }
+
+    @GetMapping("/stats")
+    public ApiStatsVisitor getStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+        return new ApiStatsVisitor(visitorRepository.count());
     }
 
     /**
