@@ -1,5 +1,8 @@
 package fr.miage.MIAGELand.visitor;
 
+import fr.miage.MIAGELand.ticket.Ticket;
+import fr.miage.MIAGELand.ticket.TicketRepository;
+import fr.miage.MIAGELand.ticket.TicketState;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -28,7 +32,6 @@ public class VisitorControllerUnitTests {
 
     @MockBean
     private VisitorRepository visitorRepository;
-
     @MockBean
     private VisitorService visitorService;
 
@@ -36,7 +39,7 @@ public class VisitorControllerUnitTests {
     @Test
     public void getVisitor() throws Exception {
         given(visitorRepository.findByEmail("test_1"))
-                .willReturn(new Visitor("test_1", "test_1", "test_1"));
+                .willReturn(generateVisitors(1).get(0));
         String email = "test_1";
         mockMvc.perform(get("/api/visitors/{email}", email)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -45,9 +48,16 @@ public class VisitorControllerUnitTests {
     }
 
     private List<Visitor> generateVisitors(int nbVisitors) {
-        return Stream.iterate(0, n -> n+1)
+        return Stream.iterate(1, n -> n+1)
                 .limit(nbVisitors)
                 .map(i -> new Visitor("test_" + i, "test_" + i, "test_" + i))
+                .toList();
+    }
+
+    private List<Ticket> generateTickets(int nbTickets, Visitor visitor) {
+        return Stream.iterate(1, n -> n+1)
+                .limit(nbTickets)
+                .map(i -> new Ticket(visitor, LocalDate.now(), 10.0f, TicketState.RESERVED))
                 .toList();
     }
 
