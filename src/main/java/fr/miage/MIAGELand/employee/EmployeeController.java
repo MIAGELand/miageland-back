@@ -95,8 +95,9 @@ public class EmployeeController {
             );
             employees.add(current);
         }
-        return employeeRepository.saveAll(employees).stream().map(
-                employee -> new ApiEmployee(
+        return employeeRepository.saveAll(employees)
+                .stream()
+                .map(employee -> new ApiEmployee(
                         employee.getId(),
                         employee.getName(),
                         employee.getSurname(),

@@ -1,6 +1,5 @@
 package fr.miage.MIAGELand.visitor;
 
-import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,9 +14,6 @@ public class VisitorService {
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     public boolean isVisitorFieldValid(Visitor visitor) {
-        System.out.println(visitor.getName());
-        System.out.println(visitor.getSurname());
-        System.out.println(visitor.getEmail());
         return visitor.getName() != null && visitor.getSurname() != null && visitor.getEmail() != null;
     }
 

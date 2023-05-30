@@ -2,7 +2,6 @@ package fr.miage.MIAGELand.visitor;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.ApiVisitor;
-import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
@@ -11,8 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +74,6 @@ public class VisitorController {
     }
     @PostMapping
     public List<ApiVisitor> createVisitor(@RequestBody Map<String, Visitor> body) {
-        System.out.println(body);
         List<Visitor> visitors = new ArrayList<>();
         for (Visitor visitor : body.values()) {
             if (!visitorService.isVisitorFieldValid(visitor)) {
