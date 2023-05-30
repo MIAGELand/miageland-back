@@ -75,21 +75,25 @@ public class EmployeeController {
      * @return Employee
      */
     @PostMapping()
-    public List<ApiEmployee> createEmployee(@RequestBody Map<String, Map<String, String>> body,
+    public List<ApiEmployee> createEmployee(@RequestBody Map<String, Employee> body,
                                          @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
+        // Check all fields are present
         List<Employee> employees = new ArrayList<>();
-        for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
-            Map<String, String> value = entry.getValue();
-            Employee employee = new Employee(
-                    value.get("name"),
-                    value.get("surname"),
-                    value.get("email"),
-                    EmployeeRole.valueOf(value.get("role"))
+        for (Employee employee : body.values()) {
+            // Check all fields are present
+            if (!employeeService.isEmployeeFieldValid(employee)) {
+                throw new IllegalArgumentException("Missing field");
+            }
+            Employee current = new Employee(
+                    employee.getName(),
+                    employee.getSurname(),
+                    employee.getEmail(),
+                    employee.getRole()
             );
-            employees.add(employee);
+            employees.add(current);
         }
         return employeeRepository.saveAll(employees).stream().map(
                 employee -> new ApiEmployee(

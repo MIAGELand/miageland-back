@@ -9,6 +9,9 @@ public class AttractionService {
 
     private AttractionRepository attractionRepository;
 
+    public boolean isValidAttractionField(Attraction attraction) {
+        return attraction.getName() != null;
+    }
     public void updateState(Attraction attraction, boolean state) throws AttractionStateException {
         boolean isOpened = attraction.isOpened();
         if (isOpened == state) {

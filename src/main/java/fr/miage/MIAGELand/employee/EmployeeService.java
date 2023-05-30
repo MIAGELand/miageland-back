@@ -9,6 +9,9 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
+    public boolean isEmployeeFieldValid(Employee employee) {
+        return employee.getName() != null && employee.getSurname() != null && employee.getEmail() != null && employee.getRole() != null;
+    }
     public void upgradeEmployeeRole(Employee employee) throws EmployeeRoleNotValidException {
         EmployeeRole currentRole = employee.getRole();
         switch (currentRole) {

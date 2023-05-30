@@ -44,19 +44,21 @@ public class AttractionController {
     }
 
     @PostMapping()
-    public List<ApiAttraction> createAttraction(@RequestBody Map<String, Map<String, String>> body,
-                                             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+    public List<ApiAttraction> createAttraction(@RequestBody Map<String, Attraction> body,
+                                             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException, AttractionStateException {
         if (!securityService.isAdminOrManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
         List<Attraction> attractions = new ArrayList<>();
-        for (Map.Entry<String, Map<String, String>> entry : body.entrySet()) {
-            Map<String, String> value = entry.getValue();
-            Attraction attraction = new Attraction(
-                    value.get("name"),
-                    Boolean.parseBoolean(value.get("opened"))
+        for (Attraction attraction : body.values()) {
+            if (!attractionService.isValidAttractionField(attraction)) {
+                throw new AttractionStateException("Invalid state.");
+            }
+            Attraction current = new Attraction(
+                    attraction.getName(),
+                    attraction.isOpened()
             );
-            attractions.add(attraction);
+            attractions.add(current);
         }
         return attractionRepository.saveAll(attractions).stream().map(
                 attraction -> new ApiAttraction(
