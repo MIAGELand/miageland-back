@@ -2,11 +2,11 @@ package fr.miage.MIAGELand.visitor;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.ApiVisitor;
+import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -15,6 +15,8 @@ import java.util.Map;
 public class VisitorController {
 
     private final VisitorRepository visitorRepository;
+    private final VisitorService visitorService;
+
 
     @GetMapping("/{email}")
     public ApiVisitor getVisitor(@PathVariable String email) {
@@ -22,35 +24,38 @@ public class VisitorController {
         if (visitor == null) {
             throw new IllegalArgumentException("Visitor not found");
         } else {
+            List<ApiTicket> apiTickets = null;
+            List<Ticket> ticketList = visitor.getTicketList();
+            if (ticketList != null) {
+                apiTickets = ticketList.stream().map(
+                        ticket -> new ApiTicket(
+                                ticket.getId(),
+                                ticket.getState(),
+                                ticket.getPrice(),
+                                ticket.getDate(),
+                                ticket.getVisitor().getName(),
+                                ticket.getVisitor().getId()
+                        )
+                ).toList();
+            }
             return new ApiVisitor(
                     visitor.getId(),
                     visitor.getName(),
                     visitor.getSurname(),
                     visitor.getEmail(),
-                    visitor.getTicketList().stream().map(
-                            ticket -> new ApiTicket(
-                                    ticket.getId(),
-                                    ticket.getState(),
-                                    ticket.getPrice(),
-                                    ticket.getDate(),
-                                    ticket.getVisitor().getName(),
-                                    ticket.getVisitor().getId()
-                            )
-                    ).toList()
+                    apiTickets
             );
         }
     }
     @PostMapping
-    public ApiVisitor createVisitor(@RequestBody Map<String, String> body) {
-        if (!body.containsKey("name")
-            || !body.containsKey("surname")
-            || !body.containsKey("email")) {
+    public ApiVisitor createVisitor(@RequestBody Visitor body) {
+        if (!visitorService.isVisitorFieldValid(body)) {
             throw new IllegalArgumentException("Missing parameters");
         } else {
             Visitor visitor = new Visitor(
-                    body.get("name"),
-                    body.get("surname"),
-                    body.get("email")
+                    body.getName(),
+                    body.getSurname(),
+                    body.getEmail()
             );
             visitorRepository.save(visitor);
             return new ApiVisitor(
