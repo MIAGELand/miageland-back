@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * This class is used to represent a park in the API.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

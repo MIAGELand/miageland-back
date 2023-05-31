@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+/**
+ * This class is used to represent a ticket in the API.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

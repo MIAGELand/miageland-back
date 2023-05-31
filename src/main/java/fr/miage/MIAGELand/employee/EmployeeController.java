@@ -26,8 +26,8 @@ public class EmployeeController {
 
     /**
      * Get employee by email
-     * @param email
-     * @return Employee
+     * @param email Email of the employee
+     * @return ApiEmployee
      */
     @GetMapping("/{email}")
     public ApiEmployee getEmployee(@PathVariable String email) throws Exception {
@@ -71,8 +71,8 @@ public class EmployeeController {
 
     /**
      * Create an employee in database
-     * @param body
-     * @return Employee
+     * @param body Map<String, Employee>
+     * @return List of ApiEmployee
      */
     @PostMapping()
     public List<ApiEmployee> createEmployee(@RequestBody Map<String, Employee> body,
@@ -107,7 +107,13 @@ public class EmployeeController {
         ).toList();
     }
 
-    @GetMapping("")
+    /**
+     * Get all employees
+     * @param authorizationHeader Authorization header
+     * @return List of ApiEmployee
+     * @throws NotAllowedException If the user is not an employee
+     */
+    @GetMapping()
     public List<ApiEmployee> getAllEmployees(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
             throw new NotAllowedException();
@@ -123,6 +129,12 @@ public class EmployeeController {
         ).toList();
     }
 
+    /**
+     * Delete an employee
+     * @param id id of the employee to delete
+     * @param authorizationHeader Authorization header
+     * @throws NotAllowedException If the user is not the manager
+     */
     @DeleteMapping("/{id}")
     @Transactional
     public void removeEmployee(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
@@ -132,6 +144,15 @@ public class EmployeeController {
         employeeRepository.deleteById(id);
     }
 
+    /**
+     * Update an employee role
+     * @param id id of the employee to update
+     * @param body Map<String, String>
+     * @param authorizationHeader Authorization header
+     * @return ApiEmployee
+     * @throws EmployeeRoleNotValidException If the role is not valid
+     * @throws NotAllowedException If the user is not the manager
+     */
     @PatchMapping("/{id}")
     public ApiEmployee updateEmployee(@PathVariable Long id,
                                    @RequestBody Map<String, String> body,
@@ -155,6 +176,12 @@ public class EmployeeController {
         );
     }
 
+    /**
+     * Get employee stats (number of employees, number of admins, number of classic employees)
+     * @param authorizationHeader Authorization header
+     * @return ApiStatsEmployee
+     * @throws NotAllowedException If the user is not the manager
+     */
     @GetMapping("/stats")
     public ApiStatsEmployee getEmployeeStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {

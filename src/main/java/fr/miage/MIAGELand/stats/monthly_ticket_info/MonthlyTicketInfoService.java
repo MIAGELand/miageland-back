@@ -18,7 +18,7 @@ public class MonthlyTicketInfoService {
 
     /**
      * Get the global stats ticket
-     * @return
+     * @return List of MonthlyTicketInfos
      */
     public NumberStatsTicket getGlobalStatsTicket() {
         if (monthlyTicketInfoRepository.count() == 0) {
@@ -34,8 +34,10 @@ public class MonthlyTicketInfoService {
     }
 
     /**
-     * Get the global stats ticket
-     * @return
+     * Get the global stats ticket between two dates
+     * @param start Start date
+     * @param end End date
+     * @return NumberStatsTicket
      */
     public NumberStatsTicket getGlobalStatsTicket(LocalDate start, LocalDate end) {
         if (monthlyTicketInfoRepository.count() == 0) {
@@ -54,7 +56,7 @@ public class MonthlyTicketInfoService {
 
     /**
      * Get the monthly stats ticket
-     * @return
+     * @return List of MonthlyTicketInfos
      */
     public List<MonthlyTicketInfos> getMonthlyTicketInfos() {
         if (monthlyTicketInfoRepository.count() == 0) {
@@ -79,8 +81,10 @@ public class MonthlyTicketInfoService {
     }
 
     /**
-     * Get the monthly stats ticket
-     * @return
+     * Get the monthly stats ticket between two dates
+     * @param start Start date
+     * @param end End date
+     * @return List of MonthlyTicketInfos
      */
     public List<MonthlyTicketInfos> getMonthlyTicketInfos(LocalDate start, LocalDate end) {
         if (monthlyTicketInfoRepository.count() == 0) {

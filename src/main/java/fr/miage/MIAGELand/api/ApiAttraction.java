@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class is used to represent an attraction in the API.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

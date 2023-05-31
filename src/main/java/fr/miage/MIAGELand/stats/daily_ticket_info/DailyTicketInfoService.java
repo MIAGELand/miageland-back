@@ -16,25 +16,8 @@ public class DailyTicketInfoService {
     private final DailyTicketInfoRepository dailyTicketInfoRepository;
 
     /**
-     * Get the global stats ticket
-     * @return
-     */
-    public NumberStatsTicket getGlobalStatsTicket() {
-        if (dailyTicketInfoRepository.count() == 0) {
-            return new NumberStatsTicket(0L, 0L, 0L, 0L, 0L);
-        }
-        return new NumberStatsTicket(
-                dailyTicketInfoRepository.getAllTickets(),
-                dailyTicketInfoRepository.getAllReservedTickets(),
-                dailyTicketInfoRepository.getAllPaidTickets(),
-                dailyTicketInfoRepository.getAllUsedTickets(),
-                dailyTicketInfoRepository.getAllCancelledTickets()
-        );
-    }
-
-    /**
      * Get the daily stats ticket
-     * @return
+     * @return List of DailyTicketInfos
      */
     public List<DailyTicketInfos> getDailyTicketInfos() {
         if (dailyTicketInfoRepository.count() == 0) {
@@ -58,6 +41,12 @@ public class DailyTicketInfoService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get the daily stats ticket between two dates
+     * @param start Start date
+     * @param end End date
+     * @return List of DailyTicketInfos
+     */
     public List<DailyTicketInfos> getDailyTicketInfos(LocalDate start, LocalDate end) {
         if (dailyTicketInfoRepository.count() == 0) {
             return null;

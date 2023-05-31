@@ -1,5 +1,8 @@
 package fr.miage.MIAGELand.security;
 
+/**
+ * Exception thrown when a user is not allowed to do something.
+ */
 public class NotAllowedException extends Exception {
 
     public NotAllowedException() {

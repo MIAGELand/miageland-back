@@ -1,10 +1,9 @@
 package fr.miage.MIAGELand.park;
 
+/**
+ * Exception thrown when a gauge is not valid.
+ */
 public class IllegalGaugeException extends Exception {
-
-        public IllegalGaugeException() {
-            super("The gauge is not valid.");
-        }
 
         public IllegalGaugeException(String message) {
             super(message);

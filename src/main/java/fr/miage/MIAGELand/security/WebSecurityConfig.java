@@ -11,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
 
+/**
+ * Security configuration.
+ */
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {

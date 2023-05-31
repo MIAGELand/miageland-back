@@ -11,6 +11,12 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
     private final EmployeeRepository employeeRepository;
 
+    /**
+     * Check if the user is an employee
+     * @param authorizationHeader Authorization header
+     * @return true if the user is an employee
+     * @throws NotAllowedException If the user is not an employee
+     */
     public boolean isEmployee(String authorizationHeader) throws NotAllowedException {
         String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
 
@@ -21,6 +27,12 @@ public class SecurityService {
         return true;
     }
 
+    /**
+     * Check if the user is an admin or a manager
+     * @param authorizationHeader Authorization header
+     * @return true if the user is an admin or a manager
+     * @throws NotAllowedException If the user is not an admin or a manager
+     */
     public boolean isAdminOrManager(String authorizationHeader) throws NotAllowedException {
         String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
 
@@ -34,6 +46,12 @@ public class SecurityService {
         return true;
     }
 
+    /**
+     * Check if the user is the manager
+     * @param authorizationHeader Authorization header
+     * @return true if the user is the manager
+     * @throws NotAllowedException If the user is not the manager
+     */
     public boolean isManager(String authorizationHeader) throws NotAllowedException {
         String email = Headers.extractEmailFromAuthorizationHeader(authorizationHeader);
 

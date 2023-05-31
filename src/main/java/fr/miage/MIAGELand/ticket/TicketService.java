@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -41,7 +40,7 @@ public class TicketService {
         switch (previousState) {
             case RESERVED -> {
                 ticket.setState(TicketState.PAID);
-                statTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                statTicketInfoService.updateTicketInfoOnAction(ticket, previousState);
             }
             case PAID -> throw new TicketNotValidException("Ticket already paid.");
             case USED -> throw new TicketNotValidException("Ticket already used.");
@@ -64,7 +63,7 @@ public class TicketService {
         switch (previousState) {
             case PAID -> {
                 ticket.setState(TicketState.USED);
-                statTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                statTicketInfoService.updateTicketInfoOnAction(ticket, previousState);
             }
             case RESERVED -> throw new TicketNotValidException("Ticket not paid.");
             case USED -> throw new TicketNotValidException("Ticket already used.");
@@ -84,7 +83,7 @@ public class TicketService {
             switch (previousState) {
                 case PAID, RESERVED -> {
                     ticket.setState(TicketState.CANCELLED);
-                    statTicketInfoService.updateTicketInfo(ticket,false, previousState);
+                    statTicketInfoService.updateTicketInfoOnAction(ticket, previousState);
                 }
                 case USED -> throw new TicketNotValidException("Ticket already used.");
                 case CANCELLED -> throw new TicketNotValidException("Ticket cancelled.");
@@ -94,37 +93,46 @@ public class TicketService {
         }
     }
 
-    public List<Ticket> getAllTicketsNextDays() {
-        return ticketRepository.findAllByDateAfter(LocalDate.now());
-    }
-
+    /**
+     * Get all tickets with pagination
+     * @param pageNumber Page number
+     * @return Page of tickets
+     */
     public Page<Ticket> getTickets(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE);
         return ticketRepository.findAll(pageable);
     }
 
+    /**
+     * Check if date is valid
+     * @param date Date to check
+     */
     public void validateDate(LocalDate date) {
         if (date.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Date is not valid");
         }
     }
 
-    public void validateGauge(long gauge) {
+    /**
+     * Check if gauge is not exceeded
+     * @param dailyTicketCount Daily ticket count
+     */
+    public void validateGauge(long dailyTicketCount) {
         long currentGauge = parkRepository.findById(1L).get().getGauge();
-        if (currentGauge == 0) {
+        if (dailyTicketCount + 1 > currentGauge) {
             throw new IllegalArgumentException("Gauge is exceeded");
         }
     }
 
+    /**
+     * Get daily ticket count for a specific date
+     * @param date Date to check
+     * @return Daily ticket count
+     */
     public long getDailyTicketCount(LocalDate date) {
         DailyTicketInfo dailyTicketInfo = dailyTicketInfoRepository.findByDayMonthYear(date);
         if (dailyTicketInfo != null) {
-            long dailyTicketCount = dailyTicketInfo.getTicketCount();
-            long currentGauge = parkRepository.findById(1L).get().getGauge();
-            if (dailyTicketCount + 1 > currentGauge) {
-                throw new IllegalArgumentException("Gauge is exceeded");
-            }
-            return dailyTicketCount;
+            return dailyTicketInfo.getTicketCount();
         }
         return 0;
     }

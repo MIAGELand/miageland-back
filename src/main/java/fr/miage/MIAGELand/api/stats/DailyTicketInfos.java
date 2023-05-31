@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * This class is used to represent the daily stats of the tickets in the API.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

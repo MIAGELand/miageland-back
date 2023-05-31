@@ -16,6 +16,11 @@ public class ParkController {
     private final ParkService parkService;
     private final ParkRepository parkRepository;
     private final SecurityService securityService;
+
+    /**
+     * Get the park information
+     * @return ApiPark
+     */
     @GetMapping
     public ApiPark getPark() {
         if (parkRepository.count() == 0) {
@@ -25,6 +30,15 @@ public class ParkController {
         Park park = parkRepository.findAll().get(0);
         return new ApiPark(park.getId(), park.getMinTicketGauge(), park.getGauge(), park.getModifiedAt());
     }
+
+    /**
+     * Update the park information (gauge)
+     * @param body Map<String, String>
+     * @param authorizationHeader String
+     * @return ApiPark
+     * @throws IllegalGaugeException if the gauge is not valid
+     * @throws NotAllowedException if the user is not the manager
+     */
     @PatchMapping("/gauge")
     public ApiPark updateGauge(@RequestBody Map<String, String> body,
                                @RequestHeader("Authorization") String authorizationHeader)

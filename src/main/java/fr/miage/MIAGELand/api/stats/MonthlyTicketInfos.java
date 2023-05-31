@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.YearMonth;
 
+/**
+ * This class is used to represent the monthly stats of the tickets in the API.
+ */
 @AllArgsConstructor
 @Getter
 @Setter

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +31,11 @@ public class StatTicketInfoService {
     private final ParkRepository parkRepository;
 
     /**
-     * Update ticket info on user action : buy, cancel, use
-     * @param ticket
-     * @param newTicket
-     * @param previousState
+     * Update ticket info on action : pay, validate, cancel
+     * @param ticket Ticket
+     * @param previousState Previous state of the ticket (before the action)
      */
-    public void updateTicketInfo(Ticket ticket, boolean newTicket, TicketState previousState) {
+    public void updateTicketInfoOnAction(Ticket ticket, TicketState previousState) {
         LocalDate date = ticket.getDate();
         YearMonth monthYear = YearMonth.from(date);
         MonthlyTicketInfo monthlyTicketInfo = monthlyTicketInfoRepository.findByMonthYear(monthYear);
@@ -51,7 +49,7 @@ public class StatTicketInfoService {
             setInitialData(ticket, newMonthlyTicketInfo);
             monthlyTicketInfoRepository.save(newMonthlyTicketInfo);
         } else {
-            updateData(ticket, monthlyTicketInfo, newTicket, previousState);
+            updateDataOnAction(ticket, monthlyTicketInfo, previousState);
             monthlyTicketInfoRepository.save(monthlyTicketInfo);
         }
 
@@ -61,18 +59,21 @@ public class StatTicketInfoService {
             setInitialData(ticket, newDailyTicketInfo);
             dailyTicketInfoRepository.save(newDailyTicketInfo);
         } else {
-            updateData(ticket, dailyTicketInfo, newTicket, previousState);
+            updateDataOnAction(ticket, dailyTicketInfo, previousState);
             dailyTicketInfoRepository.save(dailyTicketInfo);
         }
     }
 
     /**
      * Add ticket info on the creation of the tickets = reservation
-     * @param tickets
+     * @param tickets Tickets
      */
     public void updateTicketListInfo(List<Ticket> tickets) {
+        // Initialize maps for monthly and daily ticket info
         Map<YearMonth, MonthlyTicketInfoData> monthlyTicketInfoDataMap = new HashMap<>();
         Map<LocalDate, DailyTicketInfoData> dailyTicketInfoDataMap = new HashMap<>();
+
+        // For each ticket, update the corresponding monthly and daily ticket info
         for (Ticket ticket : tickets) {
             LocalDate date = ticket.getDate();
             YearMonth monthYear = YearMonth.from(date);
@@ -99,6 +100,7 @@ public class StatTicketInfoService {
             }
         }
 
+        // For each monthly ticket info, update the corresponding data and save it
         for (Map.Entry<YearMonth, MonthlyTicketInfoData> entry : monthlyTicketInfoDataMap.entrySet()) {
             YearMonth monthYear = entry.getKey();
             MonthlyTicketInfoData monthlyTicketInfoData = entry.getValue();
@@ -118,6 +120,8 @@ public class StatTicketInfoService {
 
         // Get max ticket_count by day
         Park park = parkRepository.findById(1L).get();
+
+        // For each daily ticket info, update the corresponding data and save it
         for (Map.Entry<LocalDate, DailyTicketInfoData> entry : dailyTicketInfoDataMap.entrySet()) {
             LocalDate date = entry.getKey();
             DailyTicketInfoData dailyTicketInfoData = entry.getValue();
@@ -144,9 +148,9 @@ public class StatTicketInfoService {
 
     /**
      * Set initial data if the ticket is not found in the database on update
-     * (should not happen?)
-     * @param ticket
-     * @param statTicketInfo
+     * This function is used as a protection but should never be called
+     * @param ticket Ticket
+     * @param statTicketInfo StatTicketInfo
      */
     public void setInitialData(Ticket ticket, StatTicketInfo statTicketInfo) {
         statTicketInfo.setTotalPrice((double) ticket.getPrice());
@@ -160,8 +164,8 @@ public class StatTicketInfoService {
 
     /**
      * Set initial data if the ticket is not found in the database on the creation
-     * @param ticket
-     * @param statTicketInfo
+     * @param ticket Ticket
+     * @param statTicketInfo StatTicketInfo
      */
     public void setInitialDataByMonthlyData(TicketInfoData ticket, StatTicketInfo statTicketInfo) {
         statTicketInfo.setTotalPrice(ticket.getTotalPrice());
@@ -175,36 +179,28 @@ public class StatTicketInfoService {
 
     /**
      * Update data on validate or cancel action
-     * @param ticket
-     * @param statTicketInfo
-     * @param newTicket
-     * @param previousState
+     * @param ticket Ticket
+     * @param statTicketInfo StatTicketInfo
+     * @param previousState TicketState
      */
-    public void updateData(Ticket ticket,
-                           StatTicketInfo statTicketInfo,
-                           boolean newTicket,
-                           TicketState previousState) {
-        if (newTicket) {
-            statTicketInfo.setTicketCount(statTicketInfo.getTicketCount() + 1);
-            statTicketInfo.setTotalPrice(statTicketInfo.getTotalPrice() + ticket.getPrice());
-            statTicketInfo.setTicketReservedCount(statTicketInfo.getTicketReservedCount() + 1);
-        } else {
-            if (previousState == PAID) {
-                statTicketInfo.setTicketPaidCount(statTicketInfo.getTicketPaidCount() - 1);
-                if (ticket.getState() == USED) {
-                    statTicketInfo.setTicketUsedCount(statTicketInfo.getTicketUsedCount() + 1);
-                } else if (ticket.getState() == CANCELLED) {
-                    statTicketInfo.setTicketCancelledCount(statTicketInfo.getTicketCancelledCount() + 1);
-                    statTicketInfo.setBenefits(statTicketInfo.getBenefits() - ticket.getPrice());
-                }
-            } else if (previousState == RESERVED) {
-                statTicketInfo.setTicketReservedCount(statTicketInfo.getTicketReservedCount() - 1);
-                if (ticket.getState() == PAID) {
-                    statTicketInfo.setTicketPaidCount(statTicketInfo.getTicketPaidCount() + 1);
-                    statTicketInfo.setBenefits(statTicketInfo.getBenefits() + ticket.getPrice());
-                } else if (ticket.getState() == CANCELLED) {
-                    statTicketInfo.setTicketCancelledCount(statTicketInfo.getTicketCancelledCount() + 1);
-                }
+    public void updateDataOnAction(Ticket ticket,
+                                   StatTicketInfo statTicketInfo,
+                                   TicketState previousState) {
+        if (previousState == PAID) {
+            statTicketInfo.setTicketPaidCount(statTicketInfo.getTicketPaidCount() - 1);
+            if (ticket.getState() == USED) {
+                statTicketInfo.setTicketUsedCount(statTicketInfo.getTicketUsedCount() + 1);
+            } else if (ticket.getState() == CANCELLED) {
+                statTicketInfo.setTicketCancelledCount(statTicketInfo.getTicketCancelledCount() + 1);
+                statTicketInfo.setBenefits(statTicketInfo.getBenefits() - ticket.getPrice());
+            }
+        } else if (previousState == RESERVED) {
+            statTicketInfo.setTicketReservedCount(statTicketInfo.getTicketReservedCount() - 1);
+            if (ticket.getState() == PAID) {
+                statTicketInfo.setTicketPaidCount(statTicketInfo.getTicketPaidCount() + 1);
+                statTicketInfo.setBenefits(statTicketInfo.getBenefits() + ticket.getPrice());
+            } else if (ticket.getState() == CANCELLED) {
+                statTicketInfo.setTicketCancelledCount(statTicketInfo.getTicketCancelledCount() + 1);
             }
         }
     }

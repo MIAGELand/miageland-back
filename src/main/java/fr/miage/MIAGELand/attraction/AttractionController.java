@@ -23,8 +23,8 @@ public class AttractionController {
 
     /**
      * Get attraction by id
-     * @param id
-     * @return Attraction
+     * @param id id of the attraction
+     * @return ApiAttraction
      */
     @GetMapping("/{id}")
     public ApiAttraction getAttraction(@PathVariable Long id) {
@@ -32,7 +32,11 @@ public class AttractionController {
         return new ApiAttraction(attraction.getId(), attraction.getName(), attraction.isOpened());
     }
 
-    @GetMapping("")
+    /**
+     * Get all attractions
+     * @return List of ApiAttraction
+     */
+    @GetMapping()
     public List<ApiAttraction> getAllAttractions() {
         return attractionRepository.findAll().stream().map(
                 attraction -> new ApiAttraction(
@@ -43,6 +47,14 @@ public class AttractionController {
         ).toList();
     }
 
+    /**
+     * Get all attractions with stats
+     * @param body Map of attractions
+     * @param authorizationHeader Authorization header
+     * @return List of ApiStatsAttraction
+     * @throws NotAllowedException If the user is not allowed to access this resource
+     * @throws AttractionStateException If the attraction is in an invalid state
+     */
     @PostMapping()
     public List<ApiAttraction> createAttraction(@RequestBody Map<String, Attraction> body,
                                              @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException, AttractionStateException {
@@ -69,6 +81,12 @@ public class AttractionController {
         ).toList();
     }
 
+    /**
+     * Delete attraction by id (only for admin or manager)
+     * @param id id of the attraction
+     * @param authorizationHeader Authorization header
+     * @throws NotAllowedException If the user is not allowed to access this resource
+     */
     @DeleteMapping("/{id}")
     @Transactional
     public void removeAttraction(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
@@ -78,6 +96,16 @@ public class AttractionController {
         attractionRepository.deleteById(id);
     }
 
+    /**
+     * Update attraction by id (only for admin or manager)
+     * Set the attraction to opened or closed
+     * @param id id of the attraction
+     * @param body Map of the attraction
+     * @param authorizationHeader Authorization header
+     * @return ApiAttraction updated
+     * @throws AttractionStateException If the attraction is in an invalid state
+     * @throws NotAllowedException If the user is not allowed to access this resource
+     */
     @PatchMapping("/{id}")
     public ApiAttraction updateAttraction(@PathVariable Long id, @RequestBody Map<String, String> body, @RequestHeader("Authorization")
     String authorizationHeader) throws AttractionStateException, NotAllowedException {
@@ -93,6 +121,12 @@ public class AttractionController {
         return new ApiAttraction(attraction.getId(), attraction.getName(), attraction.isOpened());
     }
 
+    /**
+     * Get stats of the attractions
+     * @param authorizationHeader Authorization header
+     * @return ApiStatsAttraction
+     * @throws NotAllowedException If the user is not allowed to access this resource
+     */
     @GetMapping("/stats")
     public ApiStatsAttraction getAttractionStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isAdminOrManager(authorizationHeader)) {

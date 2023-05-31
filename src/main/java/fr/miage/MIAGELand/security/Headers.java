@@ -1,7 +1,15 @@
 package fr.miage.MIAGELand.security;
 
+/**
+ * Utility class for extracting data from HTTP headers.
+ */
 public class Headers {
 
+    /**
+     * Extracts the email from the Authorization header.
+     * @param authorizationHeader The Authorization header value
+     * @return The email
+     */
     public static String extractEmailFromAuthorizationHeader(String authorizationHeader) {
         // Assuming the header value is in the format "email=admin"
         String[] headerParts = authorizationHeader.split("=");

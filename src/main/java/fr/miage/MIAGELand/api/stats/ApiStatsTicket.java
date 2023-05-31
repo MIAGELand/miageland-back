@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * This class is used to represent the stats of the ticket in the API.
+ */
 @AllArgsConstructor
 @Getter
 @Setter
