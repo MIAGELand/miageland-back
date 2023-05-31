@@ -24,6 +24,13 @@ public class VisitorController {
     private final VisitorService visitorService;
     private final SecurityService securityService;
 
+    /**
+     * Get all visitors
+     * @param page Page number
+     * @param authorizationHeader Authorization header
+     * @return List of ApiVisitor
+     * @throws NotAllowedException If the user is not an employee
+     */
     @GetMapping("")
     public List<ApiVisitor> getVisitors(
             @RequestParam(name="page", defaultValue = "0") int page,
@@ -43,6 +50,11 @@ public class VisitorController {
         ).toList();
     }
 
+    /**
+     * Get visitor by email
+     * @param email Visitor email
+     * @return ApiVisitor
+     */
     @GetMapping("/{email}")
     public ApiVisitor getVisitor(@PathVariable String email) {
         Visitor visitor = visitorRepository.findByEmail(email);
@@ -72,6 +84,12 @@ public class VisitorController {
             );
         }
     }
+
+    /**
+     * Create a visitor
+     * @param body Is a map of visitors, in order to insert multiple visitor at once
+     * @return List of ApiVisitor
+     */
     @PostMapping
     public List<ApiVisitor> createVisitor(@RequestBody Map<String, Visitor> body) {
         List<Visitor> visitors = new ArrayList<>();
@@ -99,6 +117,11 @@ public class VisitorController {
         ).toList();
     }
 
+    /**
+     * Get visitor tickets by visitor id
+     * @param id Visitor id
+     * @return List of ApiTicket
+     */
     @GetMapping("/{id}/tickets")
     public List<ApiTicket> getVisitorTickets(@PathVariable Long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
@@ -117,6 +140,15 @@ public class VisitorController {
         ).toList();
     }
 
+    /**
+     * Get visitor stats
+     * @param authorizationHeader Authorization header
+     * @return ApiStatsVisitor
+     * @throws NotAllowedException If the user is not an employee
+     * <br>
+     * Needs to be an emplyee since the VisitorPage on the Admin panel
+     * is only accessible by employees (not only managers or admins)
+     */
     @GetMapping("/stats")
     public ApiStatsVisitor getStats(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
@@ -128,7 +160,7 @@ public class VisitorController {
     /**
      * Delete visitor by id
      * TODO : check state of tickets before deleting
-     * @param id
+     * @param id Visitor id
      */
     @DeleteMapping("/{id}")
     public void deleteVisitor(@PathVariable Long id) {
