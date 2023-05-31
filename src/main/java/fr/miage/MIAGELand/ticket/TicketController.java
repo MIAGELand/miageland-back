@@ -33,14 +33,12 @@ public class TicketController {
     private final VisitorRepository visitorRepository;
     private final StatTicketInfoService statTicketInfoService;
     private final DailyTicketInfoService dailyTicketInfoService;
-    private final DailyTicketInfoRepository dailyTicketInfoRepository;
-    private final ParkRepository parkRepository;
     private final SecurityService securityService;
 
     /**
      * Get ticket by id
-     * @param id
-     * @return Ticket
+     * @param id Ticket id
+     * @return ApiTicket
      */
     @GetMapping("/{id}")
     public ApiTicket getTicket(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
@@ -58,6 +56,12 @@ public class TicketController {
         );
     }
 
+    /**
+     * Get all tickets
+     * @param authorizationHeader Authorization header
+     * @return List of ApiTicket
+     * @throws NotAllowedException If the user is not an employee
+     */
     @GetMapping("/all")
     public List<ApiTicket> getAllTickets(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
@@ -76,9 +80,10 @@ public class TicketController {
     }
 
     /**
-     * Update ticket state to used
-     * @param id
-     * @return Ticket
+     * Update ticket state to used or paid
+     * @param body Body of the request (state)
+     * @param authorizationHeader Authorization header (for validation)
+     * @return ApiTicket
      */
     @PatchMapping("/{id}")
     public ApiTicket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body,
@@ -106,44 +111,36 @@ public class TicketController {
     }
 
     /**
-     * Create the tickets in database
-     * @param body
-     * @return Ticket
+     * Create the tickets in database and return them
+     * @param ticketsData Body of the request (tickets data)
+     * @return List of ApiTicket
      */
-    @PostMapping("")
+    @PostMapping()
     public List<ApiTicket> createTickets(@RequestBody Map<String, Map<String, String>> ticketsData) {
         List<Ticket> tickets = new ArrayList<>();
         List<Visitor> newVisitors = new ArrayList<>();
-
         for (Map<String, String> ticketData : ticketsData.values()) {
+
             String name = ticketData.get("name");
             String surname = ticketData.get("surname");
             String email = ticketData.get("email");
             LocalDate date = DateConverter.convertLocalDate(ticketData.get("date"));
-            if (date.isBefore(LocalDate.now())) {
-                throw new IllegalArgumentException("Date is not valid");
-            }
+            ticketService.validateDate(date);
 
-            long dailyTicketCount;
-            if (dailyTicketInfoRepository.findByDayMonthYear(date) != null) {
-                dailyTicketCount = dailyTicketInfoRepository.findByDayMonthYear(date).getTicketCount();
-                long currentGauge = parkRepository.findById(1L).get().getGauge();
-                if (dailyTicketCount + 1 > currentGauge) {
-                    throw new IllegalArgumentException("Gauge is exceeded");
-                }
-            }
+            long dailyTicketCount = ticketService.getDailyTicketCount(date);
+            ticketService.validateGauge(dailyTicketCount);
 
             float price = Float.parseFloat(ticketData.get("price"));
 
             Visitor visitor = visitorRepository.findByEmail(email);
-            Visitor newVisitor;
+            Ticket ticket;
             if (visitor == null) {
-                newVisitor = new Visitor(name, surname, email);
+                Visitor newVisitor = new Visitor(name, surname, email);
                 newVisitors.add(newVisitor);
-                Ticket ticket = new Ticket(newVisitor, date, price, TicketState.RESERVED);
+                ticket = new Ticket(newVisitor, date, price, TicketState.RESERVED);
                 tickets.add(ticket);
             } else {
-                Ticket ticket = new Ticket(visitor, date, price, TicketState.RESERVED);
+                ticket = new Ticket(visitor, date, price, TicketState.RESERVED);
                 tickets.add(ticket);
             }
         }
@@ -153,9 +150,7 @@ public class TicketController {
         }
 
         ticketRepository.saveAll(tickets);
-
         statTicketInfoService.updateTicketListInfo(tickets);
-
         return tickets.stream().map(
                 ticket -> new ApiTicket(
                         ticket.getId(),
@@ -168,6 +163,12 @@ public class TicketController {
         ).toList();
     }
 
+    /**
+     * Get stats for tickets
+     * @param start Start date
+     * @param end End date
+     * @return ApiStatsTicket
+     */
     @GetMapping("/stats")
     public ApiStatsTicket getStats(
             @RequestParam(required = false) String start,
@@ -190,6 +191,13 @@ public class TicketController {
         );
     }
 
+    /**
+     * Get all tickets paginated
+     * @param page Page number
+     * @param authorizationHeader Authorization header
+     * @return List of ApiTicket
+     * @throws NotAllowedException If the user is not an employee
+     */
     @GetMapping("")
     public List<ApiTicket> getTickets(
             @RequestParam(name="page", defaultValue = "0") int page,
