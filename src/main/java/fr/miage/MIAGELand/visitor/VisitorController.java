@@ -31,7 +31,7 @@ public class VisitorController {
      * @return List of ApiVisitor
      * @throws NotAllowedException If the user is not an employee
      */
-    @GetMapping("")
+    @GetMapping
     public List<ApiVisitor> getVisitors(
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException
@@ -121,35 +121,12 @@ public class VisitorController {
     }
 
     /**
-     * Get visitor tickets by visitor id
-     * @param id Visitor id
-     * @return List of ApiTicket
-     */
-    @GetMapping("/{id}/tickets")
-    public List<ApiTicket> getVisitorTickets(@PathVariable Long id) {
-        Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        if (visitor.getTicketList().isEmpty()) {
-            return List.of();
-        }
-        return visitor.getTicketList().stream().map(
-                ticket -> new ApiTicket(
-                        ticket.getId(),
-                        ticket.getState(),
-                        ticket.getPrice(),
-                        ticket.getDate(),
-                        ticket.getVisitor().getName(),
-                        ticket.getVisitor().getId()
-                )
-        ).toList();
-    }
-
-    /**
      * Get visitor stats
      * @param authorizationHeader Authorization header
      * @return ApiStatsVisitor
      * @throws NotAllowedException If the user is not an employee
      * <br>
-     * Needs to be an emplyee since the VisitorPage on the Admin panel
+     * Needs to be an employee since the VisitorPage on the Admin panel
      * is only accessible by employees (not only managers or admins)
      */
     @GetMapping("/stats")

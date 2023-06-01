@@ -74,7 +74,7 @@ public class EmployeeController {
      * @param body Map<String, Employee>
      * @return List of ApiEmployee
      */
-    @PostMapping()
+    @PostMapping
     public List<ApiEmployee> createEmployee(@RequestBody Map<String, Employee> body,
                                          @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
@@ -113,7 +113,7 @@ public class EmployeeController {
      * @return List of ApiEmployee
      * @throws NotAllowedException If the user is not an employee
      */
-    @GetMapping()
+    @GetMapping
     public List<ApiEmployee> getAllEmployees(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
             throw new NotAllowedException();

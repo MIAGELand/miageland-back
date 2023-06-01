@@ -2,11 +2,9 @@ package fr.miage.MIAGELand.ticket;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.stats.ApiStatsTicket;
-import fr.miage.MIAGELand.park.ParkRepository;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.stats.StatTicketInfoService;
-import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoRepository;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoService;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
@@ -24,7 +22,7 @@ import java.util.Map;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/tickets")
+@RequestMapping("/api")
 public class TicketController {
 
     private final TicketRepository ticketRepository;
@@ -40,7 +38,7 @@ public class TicketController {
      * @param id Ticket id
      * @return ApiTicket
      */
-    @GetMapping("/{id}")
+    @GetMapping("/tickets/{id}")
     public ApiTicket getTicket(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
             throw new NotAllowedException();
@@ -62,7 +60,7 @@ public class TicketController {
      * @return List of ApiTicket
      * @throws NotAllowedException If the user is not an employee
      */
-    @GetMapping("/all")
+    @GetMapping("/tickets/all")
     public List<ApiTicket> getAllTickets(@RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
             throw new NotAllowedException();
@@ -85,7 +83,7 @@ public class TicketController {
      * @param authorizationHeader Authorization header (for validation)
      * @return ApiTicket
      */
-    @PatchMapping("/{id}")
+    @PatchMapping("/tickets/{id}")
     public ApiTicket updateTicket(@PathVariable Long id, @RequestBody Map<String, String> body,
                                   @RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws TicketNotValidException, NotAllowedException {
         if (!body.containsKey("state")) {
@@ -115,7 +113,7 @@ public class TicketController {
      * @param ticketsData Body of the request (tickets data)
      * @return List of ApiTicket
      */
-    @PostMapping()
+    @PostMapping("/tickets")
     public List<ApiTicket> createTickets(@RequestBody Map<String, Map<String, String>> ticketsData) {
         List<Ticket> tickets = new ArrayList<>();
         List<Visitor> newVisitors = new ArrayList<>();
@@ -169,7 +167,7 @@ public class TicketController {
      * @param end End date
      * @return ApiStatsTicket
      */
-    @GetMapping("/stats")
+    @GetMapping("/tickets/stats")
     public ApiStatsTicket getStats(
             @RequestParam(required = false) String start,
             @RequestParam(required = false) String end) {
@@ -192,13 +190,36 @@ public class TicketController {
     }
 
     /**
+     * Get visitor tickets by visitor id
+     * @param id Visitor id
+     * @return List of ApiTicket
+     */
+    @GetMapping("/visitors/{id}/tickets")
+    public List<ApiTicket> getVisitorTickets(@PathVariable Long id) {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        if (visitor.getTicketList().isEmpty()) {
+            return List.of();
+        }
+        return visitor.getTicketList().stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
+    }
+
+    /**
      * Get all tickets paginated
      * @param page Page number
      * @param authorizationHeader Authorization header
      * @return List of ApiTicket
      * @throws NotAllowedException If the user is not an employee
      */
-    @GetMapping("")
+    @GetMapping("/tickets")
     public List<ApiTicket> getTickets(
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException

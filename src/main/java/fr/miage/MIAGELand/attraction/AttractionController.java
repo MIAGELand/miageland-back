@@ -36,7 +36,7 @@ public class AttractionController {
      * Get all attractions
      * @return List of ApiAttraction
      */
-    @GetMapping()
+    @GetMapping
     public List<ApiAttraction> getAllAttractions() {
         return attractionRepository.findAll().stream().map(
                 attraction -> new ApiAttraction(
@@ -55,7 +55,7 @@ public class AttractionController {
      * @throws NotAllowedException If the user is not allowed to access this resource
      * @throws AttractionStateException If the attraction is in an invalid state
      */
-    @PostMapping()
+    @PostMapping
     public List<ApiAttraction> createAttraction(@RequestBody Map<String, Attraction> body,
                                              @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException, AttractionStateException {
         if (!securityService.isAdminOrManager(authorizationHeader)) {
