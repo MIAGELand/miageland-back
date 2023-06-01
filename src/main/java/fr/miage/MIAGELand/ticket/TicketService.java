@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+/**
+ * Ticket service
+ * Handle all ticket related business logic
+ */
 @Service
 @AllArgsConstructor
 public class TicketService {

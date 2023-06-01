@@ -3,6 +3,11 @@ package fr.miage.MIAGELand.attraction;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Attraction service
+ * Handle all attraction related business logic
+ * @see Attraction
+ */
 @Service
 @AllArgsConstructor
 public class AttractionService {

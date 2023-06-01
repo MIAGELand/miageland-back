@@ -7,9 +7,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 
+/**
+ * MonthlyTicketInfo class
+ * This is used to store the statistics of the tickets and to send them to the front.
+ * This class is used for monthly statistics.
+ * @see StatTicketInfo
+ * @see MonthlyTicketInfoData
+ */
 @Entity
 @Setter
 @Getter

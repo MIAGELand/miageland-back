@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Employee controller
+ * Handle all employee related requests
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/employees")

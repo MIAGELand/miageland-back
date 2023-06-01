@@ -6,6 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+/**
+ * Visitor service
+ * Handle all visitor related business logic
+ * @see Visitor
+ */
 @Service
 @AllArgsConstructor
 public class VisitorService {

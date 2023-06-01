@@ -22,6 +22,10 @@ import java.util.Map;
 import static fr.miage.MIAGELand.ticket.TicketState.*;
 import static fr.miage.MIAGELand.ticket.TicketState.CANCELLED;
 
+/**
+ * Stat ticket info service
+ * Handle all statticket info related business logic
+ */
 @Service
 @AllArgsConstructor
 public class StatTicketInfoService {

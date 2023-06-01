@@ -6,6 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.YearMonth;
 import java.util.List;
 
+/**
+ * Monthly ticket info repository
+ * Handle all monthly ticket info related database requests
+ * @see MonthlyTicketInfo
+ */
 public interface MonthlyTicketInfoRepository extends JpaRepository<MonthlyTicketInfo, String> {
     MonthlyTicketInfo findByMonthYear(YearMonth monthYear);
 

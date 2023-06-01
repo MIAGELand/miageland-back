@@ -8,6 +8,10 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Visitor entity
+ * @see Ticket
+ */
 @Entity
 @Setter
 @Getter

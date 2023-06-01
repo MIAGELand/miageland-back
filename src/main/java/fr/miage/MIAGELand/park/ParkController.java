@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * Park controller
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/park")

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Service for the employee.
+ * Handle all employee related business logic
  * @see Employee
  */
 @Service

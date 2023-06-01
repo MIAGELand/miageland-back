@@ -9,6 +9,13 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DailyTicketInfo class
+ * This is used to store the statistics of the tickets and to send them to the front.
+ * This class is used for daily statistics.
+ * @see StatTicketInfo
+ * @see DailyTicketInfoData
+ */
 @Entity
 @Setter
 @Getter

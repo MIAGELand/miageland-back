@@ -6,6 +6,10 @@ import fr.miage.MIAGELand.employee.EmployeeRole;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Security service
+ * Handle all security related business logic
+ */
 @Service
 @AllArgsConstructor
 public class SecurityService {

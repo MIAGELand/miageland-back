@@ -4,6 +4,11 @@ import fr.miage.MIAGELand.ticket.Ticket;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Ticket info data
+ * Used to store ticket info
+ * @see Ticket
+ */
 @Getter
 @Setter
 public class TicketInfoData {

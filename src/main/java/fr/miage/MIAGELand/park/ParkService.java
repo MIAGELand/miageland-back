@@ -3,6 +3,10 @@ package fr.miage.MIAGELand.park;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Park service
+ * Handle all park related business logic
+ */
 @Service
 @AllArgsConstructor
 public class ParkService {

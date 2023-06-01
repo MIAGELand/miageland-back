@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Ticket controller
+ * Handle all ticket related requests
+ * @see Ticket
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")

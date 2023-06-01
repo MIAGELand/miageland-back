@@ -9,6 +9,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Daily ticket info service
+ * Handle all daily ticket info related business logic
+ */
 @Service
 @AllArgsConstructor
 public class DailyTicketInfoService {

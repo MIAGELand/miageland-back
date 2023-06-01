@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Monthly ticket info service
+ * Handle all monthly ticket info related business logic
+ */
 @Service
 @AllArgsConstructor
 public class MonthlyTicketInfoService {

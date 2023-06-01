@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Attraction controller
+ * Handle all attraction related requests
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/attractions")

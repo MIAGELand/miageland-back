@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Visitor controller
+ * Handle all visitor related requests
+ * @see Visitor
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/visitors")

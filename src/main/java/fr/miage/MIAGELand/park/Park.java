@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * Park entity
+ */
 @Entity
 @Setter
 @Getter

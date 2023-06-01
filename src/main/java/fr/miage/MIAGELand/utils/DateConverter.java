@@ -3,6 +3,9 @@ package fr.miage.MIAGELand.utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Date converter
+ */
 public class DateConverter {
 
     /**
