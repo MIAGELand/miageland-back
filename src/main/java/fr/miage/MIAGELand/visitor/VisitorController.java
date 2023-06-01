@@ -102,6 +102,9 @@ public class VisitorController {
                         visitor.getSurname(),
                         visitor.getEmail()
                 );
+                if (visitorRepository.existsByEmail(visitor.getEmail())) {
+                    throw new IllegalArgumentException("Visitor already exists");
+                }
                 visitors.add(current);
             }
         }
