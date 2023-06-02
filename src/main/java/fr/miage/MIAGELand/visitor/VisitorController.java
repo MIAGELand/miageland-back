@@ -2,6 +2,7 @@ package fr.miage.MIAGELand.visitor;
 
 import fr.miage.MIAGELand.api.ApiTicket;
 import fr.miage.MIAGELand.api.ApiVisitor;
+import fr.miage.MIAGELand.api.ApiVisitorSummary;
 import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
@@ -37,7 +38,7 @@ public class VisitorController {
      * @throws NotAllowedException If the user is not an employee
      */
     @GetMapping
-    public List<ApiVisitor> getVisitors(
+    public List<ApiVisitorSummary> getVisitors(
             @RequestParam(name="page", defaultValue = "0") int page,
             @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException
     {
@@ -46,11 +47,12 @@ public class VisitorController {
         }
         Page<Visitor> visitors = visitorService.getVisitors(page);
         return visitors.stream().map(
-                visitor -> new ApiVisitor(
+                visitor -> new ApiVisitorSummary(
                         visitor.getId(),
                         visitor.getName(),
                         visitor.getSurname(),
-                        visitor.getEmail()
+                        visitor.getEmail(),
+                        visitor.getTicketList().size()
                 )
         ).toList();
     }
