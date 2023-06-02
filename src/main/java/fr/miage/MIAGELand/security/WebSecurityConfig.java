@@ -40,12 +40,10 @@ public class WebSecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
-                    registry.addMapping("/api/**")
-                            .allowedOriginPatterns("*")
-                            .allowedMethods("*")
-                            .allowCredentials(true); // Allow credentials (cookies) in the CORS response
-                }
+                registry.addMapping("/api/**")
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("*")
+                        .allowCredentials(true); // Allow credentials (cookies) in the CORS response
             }
         };
     }
