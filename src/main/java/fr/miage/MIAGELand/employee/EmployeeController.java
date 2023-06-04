@@ -210,18 +210,16 @@ public class EmployeeController {
      * @throws NotAllowedException If the user is not the manager
      */
     @GetMapping("/search")
-    public List<ApiEmployee> getFilteredEmployees(@RequestParam MultiValueMap<String, String> params, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+    public List<ApiEmployee> getFilteredEmployeeList(@RequestParam MultiValueMap<String, String> params,
+                                                     @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
             throw new NotAllowedException();
         }
 
         // Build the specification using the utility function
-        Specification<ApiEmployee> spec = QueryUtils.buildSpecification(params, "employee");
+        Specification<Employee> spec = QueryUtils.buildSpecification(params, "employee");
 
-        // Use the specification in the repository query
-        List<Employee> filteredEmployees = employeeRepository.findAll(spec);
-
-        return filteredEmployees.stream().map(
+        return employeeRepository.findAll(spec).stream().map(
                 employee -> new ApiEmployee(
                         employee.getId(),
                         employee.getName(),

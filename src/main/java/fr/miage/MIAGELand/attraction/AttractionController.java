@@ -4,8 +4,11 @@ import fr.miage.MIAGELand.api.ApiAttraction;
 import fr.miage.MIAGELand.api.stats.ApiStatsAttraction;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
+import fr.miage.MIAGELand.utils.QueryUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -141,5 +144,30 @@ public class AttractionController {
                 attractionRepository.countByOpened(true),
                 attractionRepository.countByOpened(false)
         );
+    }
+
+    /**
+     * Get all attraction matching the given filters in the query parameters
+     * @param params Query parameters
+     * @param authorizationHeader Authorization header
+     * @return List of ApiAttraction
+     * @throws NotAllowedException If the user is not the manager
+     */
+    @GetMapping("/search")
+    public List<ApiAttraction> getFilteredAttractionList(@RequestParam MultiValueMap<String, String> params,
+                                                         @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+
+        Specification<Attraction> spec = QueryUtils.buildSpecification(params, "attraction");
+
+        return attractionRepository.findAll(spec).stream().map(
+                attraction -> new ApiAttraction(
+                        attraction.getId(),
+                        attraction.getName(),
+                        attraction.isOpened()
+                )
+        ).toList();
     }
 }

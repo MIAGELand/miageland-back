@@ -7,13 +7,14 @@ import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.ticket.Ticket;
+import fr.miage.MIAGELand.utils.QueryUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Visitor controller
@@ -153,5 +154,44 @@ public class VisitorController {
     public void deleteVisitor(@PathVariable Long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
         visitorRepository.delete(visitor);
+    }
+
+    /**
+     * Get all visitors matching the given filters in the query parameters
+     * @param params Query parameters
+     * @param authorizationHeader Authorization header
+     * @return List of ApiVisitor
+     * @throws NotAllowedException If the user is not an employee
+     */
+    @GetMapping("/search")
+    public List<ApiVisitor> getFilteredVisitorList(@RequestParam MultiValueMap<String, String> params,
+                                                   @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+
+        Specification<Visitor> spec = QueryUtils.buildSpecification(params, "ticket");
+
+        return visitorRepository.findAll(spec).stream().map(
+                visitor -> new ApiVisitor(
+                        visitor.getId(),
+                        visitor.getName(),
+                        visitor.getSurname(),
+                        visitor.getEmail(),
+                        Optional.ofNullable(visitor.getTicketList())
+                                .orElse(Collections.emptyList())
+                                .stream().map(
+                                        ticket -> new ApiTicket(
+                                                ticket.getId(),
+                                                ticket.getState(),
+                                                ticket.getPrice(),
+                                                ticket.getDate(),
+                                                ticket.getVisitor().getName(),
+                                                ticket.getVisitor().getId()
+                                        )
+                                ).toList()
+                )
+        ).toList();
+
     }
 }

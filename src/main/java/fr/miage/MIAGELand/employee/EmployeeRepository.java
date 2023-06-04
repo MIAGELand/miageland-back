@@ -15,5 +15,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Employee findByEmail(String email);
     long countByRole(EmployeeRole employeeRole);
 
-    List<Employee> findAll(Specification<ApiEmployee> specs);
+    List<Employee> findAll(Specification<Employee> specs);
 }

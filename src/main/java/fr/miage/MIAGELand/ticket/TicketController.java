@@ -8,10 +8,13 @@ import fr.miage.MIAGELand.stats.StatTicketInfoService;
 import fr.miage.MIAGELand.stats.daily_ticket_info.DailyTicketInfoService;
 import fr.miage.MIAGELand.stats.monthly_ticket_info.MonthlyTicketInfoService;
 import fr.miage.MIAGELand.utils.DateConverter;
+import fr.miage.MIAGELand.utils.QueryUtils;
 import fr.miage.MIAGELand.visitor.Visitor;
 import fr.miage.MIAGELand.visitor.VisitorRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -234,6 +237,34 @@ public class TicketController {
         }
         Page<Ticket> tickets = ticketService.getTickets(page);
         return tickets.stream().map(
+                ticket -> new ApiTicket(
+                        ticket.getId(),
+                        ticket.getState(),
+                        ticket.getPrice(),
+                        ticket.getDate(),
+                        ticket.getVisitor().getName(),
+                        ticket.getVisitor().getId()
+                )
+        ).toList();
+    }
+
+    /**
+     * Get all tickets matching the given filters in the query parameters
+     * @param params Query parameters
+     * @param authorizationHeader Authorization header
+     * @return List of ApiTicket
+     * @throws NotAllowedException If the user is not an employee
+     */
+    @GetMapping("/tickets/search")
+    public List<ApiTicket> getFilteredTicketList(@RequestParam MultiValueMap<String, String> params,
+                                                 @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isEmployee(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+
+        Specification<Ticket> spec = QueryUtils.buildSpecification(params, "ticket");
+
+        return ticketRepository.findAll(spec).stream().map(
                 ticket -> new ApiTicket(
                         ticket.getId(),
                         ticket.getState(),

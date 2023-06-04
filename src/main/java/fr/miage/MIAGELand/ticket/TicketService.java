@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -105,6 +106,11 @@ public class TicketService {
     public Page<Ticket> getTickets(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE);
         return ticketRepository.findAll(pageable);
+    }
+
+    public Page<Ticket> getTickets(int pageNumber, Specification<Ticket> specification) {
+        Pageable pageable = PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE);
+        return ticketRepository.findAll(pageable, specification);
     }
 
     /**
