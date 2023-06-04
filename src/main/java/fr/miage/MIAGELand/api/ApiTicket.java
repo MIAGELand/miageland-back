@@ -18,6 +18,6 @@ public class ApiTicket {
     private TicketState state;
     private float price;
     private LocalDate date;
-    private String nameVisitor;
-    private long idVisitor;
+    private String visitorName;
+    private long visitorId;
 }
