@@ -6,9 +6,12 @@ import fr.miage.MIAGELand.park.Park;
 import fr.miage.MIAGELand.park.ParkRepository;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
+import fr.miage.MIAGELand.utils.QueryUtils;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -197,4 +200,30 @@ public class EmployeeController {
                 employeeRepository.countByRole(EmployeeRole.CLASSIC)
         );
     }
+
+
+    @GetMapping("/search")
+    public List<ApiEmployee> getFilteredEmployees(@RequestParam MultiValueMap<String, String> params, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
+        if (!securityService.isManager(authorizationHeader)) {
+            throw new NotAllowedException();
+        }
+
+        // Build the specification using the utility function
+        Specification<ApiEmployee> spec = QueryUtils.buildSpecification(params, "employee");
+
+        // Use the specification in the repository query
+        List<Employee> filteredEmployees = employeeRepository.findAll(spec);
+
+        return filteredEmployees.stream().map(
+                employee -> new ApiEmployee(
+                        employee.getId(),
+                        employee.getName(),
+                        employee.getSurname(),
+                        employee.getEmail(),
+                        employee.getRole()
+                )
+        ).toList();
+    }
+
+
 }
