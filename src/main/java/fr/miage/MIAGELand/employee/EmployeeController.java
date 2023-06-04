@@ -202,6 +202,13 @@ public class EmployeeController {
     }
 
 
+    /**
+     * Get all employees matching the given filters in the query parameters
+     * @param params Query parameters
+     * @param authorizationHeader Authorization header
+     * @return List of ApiEmployee
+     * @throws NotAllowedException If the user is not the manager
+     */
     @GetMapping("/search")
     public List<ApiEmployee> getFilteredEmployees(@RequestParam MultiValueMap<String, String> params, @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isManager(authorizationHeader)) {
@@ -224,6 +231,5 @@ public class EmployeeController {
                 )
         ).toList();
     }
-
 
 }
