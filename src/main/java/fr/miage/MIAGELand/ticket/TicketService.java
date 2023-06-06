@@ -108,11 +108,6 @@ public class TicketService {
         return ticketRepository.findAll(pageable);
     }
 
-    public Page<Ticket> getTickets(int pageNumber, Specification<Ticket> specification) {
-        Pageable pageable = PageRequest.of(pageNumber, DEFAULT_PAGE_SIZE);
-        return ticketRepository.findAll(pageable, specification);
-    }
-
     /**
      * Check if date is valid
      * @param date Date to check

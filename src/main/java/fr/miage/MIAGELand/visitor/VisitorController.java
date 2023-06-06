@@ -35,7 +35,7 @@ public class VisitorController {
      * Get all visitors
      * @param page Page number
      * @param authorizationHeader Authorization header
-     * @return List of ApiVisitor
+     * @return List of ApiVisitorSummary
      * @throws NotAllowedException If the user is not an employee
      */
     @GetMapping
@@ -160,11 +160,11 @@ public class VisitorController {
      * Get all visitors matching the given filters in the query parameters
      * @param params Query parameters
      * @param authorizationHeader Authorization header
-     * @return List of ApiVisitor
+     * @return List of ApiVisitorSummary
      * @throws NotAllowedException If the user is not an employee
      */
     @GetMapping("/search")
-    public List<ApiVisitor> getFilteredVisitorList(@RequestParam MultiValueMap<String, String> params,
+    public List<ApiVisitorSummary> getFilteredVisitorList(@RequestParam MultiValueMap<String, String> params,
                                                    @RequestHeader("Authorization") String authorizationHeader) throws NotAllowedException {
         if (!securityService.isEmployee(authorizationHeader)) {
             throw new NotAllowedException();
@@ -173,23 +173,12 @@ public class VisitorController {
         Specification<Visitor> spec = QueryUtils.buildSpecification(params, "ticket");
 
         return visitorRepository.findAll(spec).stream().map(
-                visitor -> new ApiVisitor(
+                visitor -> new ApiVisitorSummary(
                         visitor.getId(),
                         visitor.getName(),
                         visitor.getSurname(),
                         visitor.getEmail(),
-                        Optional.ofNullable(visitor.getTicketList())
-                                .orElse(Collections.emptyList())
-                                .stream().map(
-                                        ticket -> new ApiTicket(
-                                                ticket.getId(),
-                                                ticket.getState(),
-                                                ticket.getPrice(),
-                                                ticket.getDate(),
-                                                ticket.getVisitor().getName(),
-                                                ticket.getVisitor().getId()
-                                        )
-                                ).toList()
+                        visitor.getTicketList().size()
                 )
         ).toList();
 

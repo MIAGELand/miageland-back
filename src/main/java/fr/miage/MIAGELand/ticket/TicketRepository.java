@@ -16,7 +16,5 @@ import java.util.List;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     Page<Ticket> findAll(Pageable pageable);
-
     List<Ticket> findAll(Specification<Ticket> specs);
-    Page<Ticket> findAll(Pageable pageable, Specification<Ticket> specs);
 }
