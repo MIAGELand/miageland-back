@@ -52,8 +52,7 @@ public class ParkController {
         if (!body.containsKey("gauge")) {
             throw new IllegalArgumentException("Gauge is required");
         } else {
-            parkService.setGauge(Long.parseLong(body.get("gauge")));
-            Park park = parkRepository.findById(1L).orElseThrow();
+            Park park = parkService.setGauge(Long.parseLong(body.get("gauge")));
             return new ApiPark(park.getId(), park.getMinTicketGauge(), park.getGauge(), park.getModifiedAt());
         }
     }

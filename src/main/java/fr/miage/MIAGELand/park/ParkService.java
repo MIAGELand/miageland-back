@@ -18,7 +18,7 @@ public class ParkService {
      * @param gauge The gauge to set
      * @throws IllegalGaugeException If the gauge is not valid
      */
-    public void setGauge(long gauge) throws IllegalGaugeException {
+    public Park setGauge(long gauge) throws IllegalGaugeException {
         Park park = parkRepository.findById(1L).orElseThrow();
         long minParkGauge = park.getMinTicketGauge();
         if (gauge < minParkGauge) {
@@ -26,7 +26,7 @@ public class ParkService {
         } else {
             park.setGauge(gauge);
             park.setModifiedAt(java.time.LocalDateTime.now());
-            parkRepository.save(park);
+            return parkRepository.save(park);
         }
     }
 
