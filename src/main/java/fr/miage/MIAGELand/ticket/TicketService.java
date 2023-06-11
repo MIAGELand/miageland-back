@@ -64,6 +64,11 @@ public class TicketService {
         if (!securityService.isEmployee(authorization)) {
             throw new NotAllowedException();
         }
+        // Date must be today
+        boolean isDateValid = ticket.getDate().isEqual(LocalDate.now());
+        if (!isDateValid) {
+            throw new TicketNotValidException("Ticket date is not valid.");
+        }
         TicketState previousState = ticket.getState();
         switch (previousState) {
             case PAID -> {
