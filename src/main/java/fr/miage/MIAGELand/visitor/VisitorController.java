@@ -14,6 +14,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -150,10 +152,39 @@ public class VisitorController {
      * TODO : check state of tickets before deleting
      * @param id Visitor id
      */
-    @DeleteMapping("/{id}")
-    public void deleteVisitor(@PathVariable Long id) {
+
+    public boolean checkStateTickets(@PathVariable long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        visitorRepository.delete(visitor);
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor not found");
+        } else {
+            List<Ticket> ticketList = visitor.getTicketList();
+            if (ticketList == null) {
+                return true;
+            }
+            LocalDate today = LocalDate.now();
+            for (Ticket ticket : ticketList) {
+                long daysBetween = ChronoUnit.DAYS.between(today, ticket.getDate());
+                if ((ticket.getState().equals("RESERVED") && daysBetween<=7) || ticket.getState().equals("PAID")) {
+                    return false;
+                }
+                else {
+                    ticketList.remove(ticket);
+                }
+            }
+            return true;
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteVisitor(@PathVariable Long id) throws Exception {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        if (checkStateTickets(id)){
+            visitorRepository.delete(visitor);
+        }
+        else{
+            throw new Exception("Impossible d'effacer, il y a des tickets en cours");
+        }
     }
 
     /**
