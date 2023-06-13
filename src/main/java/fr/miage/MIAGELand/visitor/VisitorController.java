@@ -7,6 +7,7 @@ import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.ticket.Ticket;
+import fr.miage.MIAGELand.ticket.TicketRepository;
 import fr.miage.MIAGELand.utils.QueryUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import java.util.*;
 public class VisitorController {
 
     private final VisitorRepository visitorRepository;
+    private final TicketRepository ticketRepository;
     private final VisitorService visitorService;
     private final SecurityService securityService;
 
@@ -168,9 +170,9 @@ public class VisitorController {
                 if ((ticket.getState().equals("RESERVED") && daysBetween<=7) || ticket.getState().equals("PAID")) {
                     return false;
                 }
-                else {
-                    ticketList.remove(ticket);
-                }
+            }
+            for (Ticket ticket : ticketList){
+                ticketRepository.delete(ticket);
             }
             return true;
         }
