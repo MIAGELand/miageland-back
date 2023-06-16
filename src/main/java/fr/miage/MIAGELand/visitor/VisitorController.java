@@ -164,29 +164,23 @@ public class VisitorController {
             if (ticketList == null) {
                 return true;
             }
-            LocalDate today = LocalDate.now();
             for (Ticket ticket : ticketList) {
-                long daysBetween = ChronoUnit.DAYS.between(today, ticket.getDate());
-                if ((ticket.getState().equals("RESERVED") && daysBetween<=7) || ticket.getState().equals("PAID")) {
+                if (ticket.getState().equals("PAID")) {
                     return false;
                 }
             }
-            for (Ticket ticket : ticketList){
-                ticketRepository.delete(ticket);
-            }
+            ticketRepository.deleteAll(visitor.getTicketList());
             return true;
         }
     }
 
     @DeleteMapping("/{id}")
     public void deleteVisitor(@PathVariable Long id) throws Exception {
+        if (!checkStateTickets(id)){
+            throw new Exception("Error, there are paid tickets on your account");
+        }
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        if (checkStateTickets(id)){
-            visitorRepository.delete(visitor);
-        }
-        else{
-            throw new Exception("Impossible d'effacer, il y a des tickets en cours");
-        }
+        visitorRepository.delete(visitor);
     }
 
     /**
