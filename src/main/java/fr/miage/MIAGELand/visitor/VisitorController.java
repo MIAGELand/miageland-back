@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import static fr.miage.MIAGELand.ticket.TicketState.PAID;
+
 /**
  * Visitor controller
  * Handle all visitor related requests
@@ -165,7 +167,7 @@ public class VisitorController {
                 return true;
             }
             for (Ticket ticket : ticketList) {
-                if (ticket.getState().equals("PAID")) {
+                if (ticket.getState() == PAID) {
                     return false;
                 }
             }
