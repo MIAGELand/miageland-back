@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static fr.miage.MIAGELand.ticket.TicketState.PAID;
@@ -38,21 +39,17 @@ public class VisitorService {
 
     public boolean checkStateTickets(@PathVariable long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        if (visitor == null) {
-            throw new IllegalArgumentException("Visitor not found");
-        } else {
-            List<Ticket> ticketList = visitor.getTicketList();
-            if (ticketList == null) {
-                return true;
-            }
-            for (Ticket ticket : ticketList) {
-                if (ticket.getState() == PAID ) {
-                    return false;
-                }
-            }
-            ticketRepository.deleteAll(visitor.getTicketList());
+        List<Ticket> ticketList = visitor.getTicketList();
+        if (ticketList == null || ticketList.isEmpty()) {
             return true;
         }
+        for (Ticket ticket : ticketList) {
+            if (ticket.getState() == PAID && ticket.getDate().isBefore(LocalDate.now())) {
+                return false;
+            }
+        }
+        ticketRepository.deleteAll(visitor.getTicketList());
+        return true;
     }
 
     /**
