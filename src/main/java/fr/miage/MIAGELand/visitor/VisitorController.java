@@ -152,7 +152,6 @@ public class VisitorController {
 
     /**
      * Delete visitor by id
-     * TODO : check state of tickets before deleting
      * @param id Visitor id
      */
     @DeleteMapping("/{id}")
