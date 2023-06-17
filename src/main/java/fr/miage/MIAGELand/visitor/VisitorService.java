@@ -37,7 +37,12 @@ public class VisitorService {
         return visitor.getName() != null && visitor.getSurname() != null && visitor.getEmail() != null;
     }
 
-    public boolean checkStateTickets(@PathVariable long id) {
+    /**
+     * Check and remove all the tickets related to an account if there are not paid ones
+     * @param id long
+     * @return True if there were no paid unused tickets, false otherwise
+     */
+    public boolean checkStateTickets(long id) {
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
         List<Ticket> ticketList = visitor.getTicketList();
         if (ticketList == null || ticketList.isEmpty()) {
