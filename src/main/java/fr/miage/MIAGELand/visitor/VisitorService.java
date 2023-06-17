@@ -1,10 +1,18 @@
 package fr.miage.MIAGELand.visitor;
 
+import fr.miage.MIAGELand.ticket.Ticket;
+import fr.miage.MIAGELand.ticket.TicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
+import java.util.List;
+
+import static fr.miage.MIAGELand.ticket.TicketState.PAID;
 
 /**
  * Visitor service
@@ -16,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class VisitorService {
 
     private final VisitorRepository visitorRepository;
+    private final TicketRepository ticketRepository;
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     /**
@@ -25,6 +34,25 @@ public class VisitorService {
      */
     public boolean isVisitorFieldValid(Visitor visitor) {
         return visitor.getName() != null && visitor.getSurname() != null && visitor.getEmail() != null;
+    }
+
+    public boolean checkStateTickets(@PathVariable long id) {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor not found");
+        } else {
+            List<Ticket> ticketList = visitor.getTicketList();
+            if (ticketList == null) {
+                return true;
+            }
+            for (Ticket ticket : ticketList) {
+                if (ticket.getState() == PAID ) {
+                    return false;
+                }
+            }
+            ticketRepository.deleteAll(visitor.getTicketList());
+            return true;
+        }
     }
 
     /**

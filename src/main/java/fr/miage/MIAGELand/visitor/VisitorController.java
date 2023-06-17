@@ -33,7 +33,6 @@ import static fr.miage.MIAGELand.ticket.TicketState.PAID;
 public class VisitorController {
 
     private final VisitorRepository visitorRepository;
-    private final TicketRepository ticketRepository;
     private final VisitorService visitorService;
     private final SecurityService securityService;
 
@@ -156,29 +155,9 @@ public class VisitorController {
      * TODO : check state of tickets before deleting
      * @param id Visitor id
      */
-
-    public boolean checkStateTickets(@PathVariable long id) {
-        Visitor visitor = visitorRepository.findById(id).orElseThrow();
-        if (visitor == null) {
-            throw new IllegalArgumentException("Visitor not found");
-        } else {
-            List<Ticket> ticketList = visitor.getTicketList();
-            if (ticketList == null) {
-                return true;
-            }
-            for (Ticket ticket : ticketList) {
-                if (ticket.getState() == PAID) {
-                    return false;
-                }
-            }
-            ticketRepository.deleteAll(visitor.getTicketList());
-            return true;
-        }
-    }
-
     @DeleteMapping("/{id}")
     public void deleteVisitor(@PathVariable Long id) throws Exception {
-        if (!checkStateTickets(id)){
+        if (!visitorService.checkStateTickets(id)){
             throw new Exception("Error, there are paid tickets on your account");
         }
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
