@@ -44,7 +44,7 @@ public class VisitorService {
             return true;
         }
         for (Ticket ticket : ticketList) {
-            if (ticket.getState() == PAID && ticket.getDate().isBefore(LocalDate.now())) {
+            if (ticket.getState() == PAID && ticket.getDate().isAfter(LocalDate.now())) {
                 return false;
             }
         }
