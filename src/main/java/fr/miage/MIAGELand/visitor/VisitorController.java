@@ -7,19 +7,13 @@ import fr.miage.MIAGELand.api.stats.ApiStatsVisitor;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.ticket.Ticket;
-import fr.miage.MIAGELand.ticket.TicketRepository;
 import fr.miage.MIAGELand.utils.QueryUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import static fr.miage.MIAGELand.ticket.TicketState.PAID;
 
 /**
  * Visitor controller
