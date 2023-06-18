@@ -1,10 +1,18 @@
 package fr.miage.MIAGELand.visitor;
 
+import fr.miage.MIAGELand.ticket.Ticket;
+import fr.miage.MIAGELand.ticket.TicketRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static fr.miage.MIAGELand.ticket.TicketState.PAID;
 
 /**
  * Visitor service
@@ -16,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class VisitorService {
 
     private final VisitorRepository visitorRepository;
+    private final TicketRepository ticketRepository;
     private static final int DEFAULT_PAGE_SIZE = 100;
 
     /**
@@ -25,6 +34,26 @@ public class VisitorService {
      */
     public boolean isVisitorFieldValid(Visitor visitor) {
         return visitor.getName() != null && visitor.getSurname() != null && visitor.getEmail() != null;
+    }
+
+    /**
+     * Check and remove all the tickets related to an account if there are not paid ones
+     * @param id long
+     * @return True if there were no paid unused tickets, false otherwise
+     */
+    public boolean checkStateTickets(long id) {
+        Visitor visitor = visitorRepository.findById(id).orElseThrow();
+        List<Ticket> ticketList = visitor.getTicketList();
+        if (ticketList == null || ticketList.isEmpty()) {
+            return true;
+        }
+        for (Ticket ticket : ticketList) {
+            if (ticket.getState() == PAID && ticket.getDate().isAfter(LocalDate.now())) {
+                return false;
+            }
+        }
+        ticketRepository.deleteAll(visitor.getTicketList());
+        return true;
     }
 
     /**

@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
 
 /**
@@ -147,11 +146,13 @@ public class VisitorController {
 
     /**
      * Delete visitor by id
-     * TODO : check state of tickets before deleting
      * @param id Visitor id
      */
     @DeleteMapping("/{id}")
-    public void deleteVisitor(@PathVariable Long id) {
+    public void deleteVisitor(@PathVariable Long id) throws Exception {
+        if (!visitorService.checkStateTickets(id)){
+            throw new Exception("Error, there are paid tickets on your account");
+        }
         Visitor visitor = visitorRepository.findById(id).orElseThrow();
         visitorRepository.delete(visitor);
     }
