@@ -171,7 +171,7 @@ public class VisitorController {
             throw new NotAllowedException();
         }
 
-        Specification<Visitor> spec = QueryUtils.buildSpecification(params, "ticket");
+        Specification<Visitor> spec = QueryUtils.buildSpecification(params, "visitor");
 
         return visitorRepository.findAll(spec).stream().map(
                 visitor -> new ApiVisitorSummary(
