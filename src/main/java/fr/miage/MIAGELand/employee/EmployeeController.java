@@ -4,6 +4,7 @@ import fr.miage.MIAGELand.api.ApiEmployee;
 import fr.miage.MIAGELand.api.stats.ApiStatsEmployee;
 import fr.miage.MIAGELand.park.Park;
 import fr.miage.MIAGELand.park.ParkRepository;
+import fr.miage.MIAGELand.security.Init;
 import fr.miage.MIAGELand.security.NotAllowedException;
 import fr.miage.MIAGELand.security.SecurityService;
 import fr.miage.MIAGELand.utils.QueryUtils;
@@ -40,20 +41,16 @@ public class EmployeeController {
     public ApiEmployee getEmployee(@PathVariable String email) throws Exception {
         Employee employee = employeeRepository.findByEmail(email);
         if (employee == null && employeeRepository.findAll().isEmpty()) {
-            Employee newEmployee = new Employee(
-                   "Admin",
-                    "MiageLand",
-                    "admin",
-                    EmployeeRole.MANAGER
-            );
-            Park park = new Park(
-                    1L,
-                    10L,
-                    10L,
-                    java.time.LocalDateTime.now()
-            );
-            employeeRepository.save(newEmployee);
+            Park park = Init.createPark();
+            List<Employee> managers = Init.createManagers();
+            employeeRepository.saveAll(managers);
             parkRepository.save(park);
+            Employee newEmployee = new Employee(
+                    "admin",
+                    "admin",
+                    email,
+                    EmployeeRole.MANAGER);
+            employeeRepository.save(newEmployee);
             return new ApiEmployee(
                     newEmployee.getId(),
                     newEmployee.getName(),
